@@ -1,0 +1,147 @@
+input[type="checkbox"],
+input[type="radio"] {
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    font-family: 'Noto Sans Japanese', 'ü‡ÉSÉVÉbÉNëÃ', 'Yu Gothic', YuGothic, 'ÉqÉâÉMÉmäpÉS Pro W3', 'Hiragino Kaku Gothic Pro', 'ÉÅÉCÉäÉI', 'Meiryo', sans-serif;
+    background-color: #fafafa;
+    color: #616161;
+    font-weight: lighter;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.content_section {
+    position: relative;
+    margin: 0 auto;
+    padding: 50px 15px;
+    width: auto;
+    font-size: 16px;
+}
+
+    .content_section:nth-of-type(2n) {
+        background-color: whitesmoke;
+    }
+
+.content_section_title {
+    margin: 0 auto 45px;
+    padding: 0;
+    max-width: 900px;
+    font-size: 24px;
+    font-weight: normal;
+    text-align: center;
+}
+
+.label_list {
+    margin: auto;
+    padding-bottom: 45px;
+    max-width: 900px;
+    line-height: 1.3;
+}
+
+    .label_list::after {
+        display: block;
+        content: '';
+        clear: both;
+    }
+
+.label_list_item {
+    float: left;
+    margin: 0 auto 16px;
+    width: 25%;
+    max-width: 225px;
+    min-width: 145px;
+}
+
+    .label_list_item label {
+        position: relative;
+        display: block;
+        word-break: break-all;
+    }
+
+        .label_list_item label input[type="checkbox"] + span,
+        .label_list_item label input[type="radio"] + span {
+            position: relative;
+            padding: 0 30px 0 35px;
+        }
+
+
+/*  DEMO 01 CHECKBOX */
+.demo1 .label_list:nth-of-type(1) label input[type="checkbox"] + span::before {
+    border-color: #00acc1;
+}
+
+.demo1 .label_list:nth-of-type(1) label input[type="checkbox"]:checked + span::before {
+    background-color: #00acc1;
+}
+
+.demo1 .label_list:nth-of-type(2) label input[type="checkbox"] + span::before {
+    border-color: #ec407a;
+}
+
+.demo1 .label_list:nth-of-type(2) label input[type="checkbox"]:checked + span::before {
+    background-color: #ec407a;
+}
+
+.demo1 label span {
+    display: inline-block;
+}
+
+.demo1 label input[type="checkbox"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+    .demo1 label input[type="checkbox"] + span::before, .demo1 label input[type="checkbox"] + span::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: inline-block;
+        content: '';
+        box-sizing: border-box;
+    }
+
+    .demo1 label input[type="checkbox"] + span::before {
+        z-index: 0;
+        background-color: transparent;
+        width: 22px;
+        height: 22px;
+        border: 2px #616161 solid;
+        border-radius: 5px;
+    }
+
+    .demo1 label input[type="checkbox"] + span::after {
+        z-index: 1;
+        margin: 5px 8px;
+        width: 6px;
+        height: 9px;
+    }
+
+    .demo1 label input[type="checkbox"]:checked + span::before {
+        background-color: #616161;
+    }
+
+    .demo1 label input[type="checkbox"]:checked + span::after {
+        border: 2px solid #fff;
+        border-width: 0 2px 2px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }

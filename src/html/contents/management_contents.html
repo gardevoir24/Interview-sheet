@@ -1,0 +1,172 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+    <title>title</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</head>
+<body>
+    <h2>証の検索・編集・削除</h2><br />
+    <form id="form">
+        <input type="text" id="key" size="50" value="">
+        <input id="search_button" class="square_btn" type="button" value="検索" onclick="onClickButton();">
+    </form>
+    <br /><h3>検索結果</h3>
+    <div id="number"></div>
+    <div id="content"></div>
+    <br /><div id="line" style="display:none"><h3>証の詳細(証をクリックすると表示されます)</h3></div>
+    <div id="advance"></div>
+    <script type="text/javascript">
+        (function () {
+            num_target = document.getElementById("number");
+            con_target = document.getElementById("content");
+            advance_target = document.getElementById("advance");
+            other_symptoms_target = document.getElementById("other_symptoms");
+            divNode = document.getElementById("checkbox");
+            empty_flag = false;
+            disabled_char_flag = false;
+            admin_url = "https://mnzhqqdh8f.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+            search_url = "https://p95hnwcvz2.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+        }());
+
+
+        function checkForm() {
+            if (document.forms.form.key.value == "") {
+                empty_flag = true;
+            } else {
+                var result = document.forms.form.key.value.match(/[;&"'\/\*\\\.\?\[\]]/);
+                if (result != null) {
+                    disabled_char_flag = true;
+                }
+            }
+        }
+
+        function itemSelected(index) {
+            var name = "証名:" + JSONparsed[index].name;
+            var description = "説明:" + JSONparsed[index].description;
+            var region = "部位:" + JSONparsed[index].region;
+            var symptoms = "症状:" + JSONparsed[index].symptoms;
+            var treatments_name = "治療法:" + JSONparsed[index].treatments_name;
+            var tongue_sign = "舌質:" + JSONparsed[index].tongue_sign;
+            var tongue_coat = "舌苔:" + JSONparsed[index].tongue_coat;
+            var pulse_sign = "脈象:" + JSONparsed[index].pulse_sign;
+            var crude_drugs = "方剤例:" + JSONparsed[index].crude_drugs;
+            var prescriptions = "薬物:" + JSONparsed[index].prescriptions;
+            var str = name + "<br>" + description + "<br>" + region + "<br>" + symptoms + "<br>" +
+                treatments_name + "<br>" + tongue_sign + "<br>" + tongue_coat + "<br>" + pulse_sign + "<br>" + crude_drugs + "<br>" +
+                prescriptions + "<br>";
+            advance_target.innerHTML = str;
+        }
+
+
+        function itemDelete(index) {
+            ret = confirm("「" + JSONparsed[index].name + "」" + "を削除します。よろしいですか？");
+            if (ret == true) {
+                var id = [JSONparsed[index].id];
+                var JSONdata = {
+                    Ids: id
+                };
+                alert(JSON.stringify(JSONdata));
+                $.ajax({
+                    type: 'Delete',
+                    url: admin_url,
+                    data: JSON.stringify(JSONdata),
+                    contentType: 'application/JSON',
+                    dataType: 'JSON',
+                    scriptCharset: 'utf-8',
+                    success: function (data) {
+                        alert("データを削除しました");
+                        onClickButton();
+                    },
+                    error: function (data) {
+                        alert("データの削除に失敗しました");
+                    }
+                });
+            }
+        }
+        /*編集*/
+        function itemEdit(index) {
+            var name = JSONparsed[index].name;
+            var description = JSONparsed[index].description;
+            var region = JSONparsed[index].region;
+            var symptoms = JSONparsed[index].symptoms;
+            var treatments_name = JSONparsed[index].treatments_name;
+            var tongue_sign = JSONparsed[index].tongue_sign;
+            var tongue_coat = JSONparsed[index].tongue_coat;
+            var pulse_sign = JSONparsed[index].pulse_sign;
+            var crude_drugs = JSONparsed[index].crude_drugs;
+            var prescriptions = JSONparsed[index].prescriptions;
+            var id = JSONparsed[index].id;
+
+            //var pram = "editForm.htm?name="+name;
+
+            setTimeout("location.href='edit_form_contents.html?name=" + name + "&description=" + description + "&region=" + region + "&symptoms=" + symptoms +
+                "&treatments_name=" + treatments_name + "&tongue_sign=" + tongue_sign + "&tongue_coat=" + tongue_coat + "&pulse_sign=" + pulse_sign +
+                "&crude_drugs=" + crude_drugs + "&prescriptions=" + prescriptions + "&id=" + id + "'", 0);
+
+            //setTimeout("location.href='editForm.htm?name=aya'",0);
+        }
+        function displayPatternList() {
+            var result = "";
+            for (var index = 0; index < JSONparsed.length; index++) {
+                    var advance_a_start = "<a href=\"#\" onclick=\"itemSelected(" + index + ");return false;\">";
+                    var delete_a_start = "<a href=\"#\" onclick=\"itemDelete(" + index + ");return false;\">";
+                    var edit_a_start = "<a href=\"#\" onclick=\"itemEdit(" + index + ");return false;\">";
+                    var a_end = "</a>";
+                    var dellink = "[" + delete_a_start + "削除" + a_end + "]";
+                    var editlink = "[" + edit_a_start + "編集" + a_end + "]";
+                    var name = advance_a_start + JSONparsed[index].name + a_end;
+                    result += name + dellink + editlink+ "<br>";
+                
+            }
+            num_target.innerHTML = JSONparsed.length + "件見つかりました";
+            advance_target.innerHTML = "";
+            con_target.innerHTML = result;
+
+        }
+
+
+        function onClickButton() {
+            empty_flag = false;
+            disabled_char_flag = false;
+            checkForm();
+            if (empty_flag) {
+                alert("キーワードを入力してください");
+            } else if (disabled_char_flag) {
+                alert("フォームに使用不可能文字が含まれています(*、/、￥、＆、\"、'など)。");
+            } else {
+                var key = document.forms.form.key.value;
+                var JSONdata = {
+                    q: key
+                };
+                $.ajax({
+                    type: 'post',
+                    url: search_url,
+                    data: JSON.stringify(JSONdata),
+                    contentType: 'application/JSON',
+                    dataType: 'JSON',
+                    scriptCharset: 'utf-8',
+                    success: function (data) {
+                        var str = JSON.stringify(data);
+                        JSONparsed = JSON.parse(str);
+                        displayPatternList(JSONparsed);
+                        document.getElementById('line').style.display = 'block';
+
+                    },
+                    error: function (data) {
+                        alert("データの検索に失敗しました");
+                    }
+                });
+            }
+        }
+    </script>
+
+</body>
+
+
+</html>

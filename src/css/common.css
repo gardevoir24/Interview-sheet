@@ -1,0 +1,512 @@
+﻿﻿@charset "UTF-8";
+/* ========BASIC======== */
+html {
+    overflow-y: scroll;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    letter-spacing: 1px;
+    font-family: Verdana, Helvetica, sans-serif;
+    font-size: 12px;
+    color: #333;
+    background: #fff;
+}
+
+br {
+    letter-spacing: normal;
+}
+
+a {
+    color: #0089a1;
+    text-decoration: none;
+}
+
+    a:hover {
+        color: #0089a1;
+        text-decoration: underline;
+    }
+
+img {
+    border: 0;
+    vertical-align: bottom;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+
+
+/* ========TEMPLATE LAYOUT======== */
+#top {
+    width: 779px;
+    margin: 10px auto;
+    border: 1px solid #666;
+}
+
+#header {
+    width: 779px;
+}
+
+#menu {
+    float: left;
+}
+
+#topicPath {
+    float: left;
+}
+
+#contents {
+    background: #ccc;
+}
+
+#main {
+    display: inline; /* for IE6 */
+    float: left;
+    width: 544px;
+    margin: 5px;
+    margin-right: 0;
+    padding: 10px;
+    background: #fff;
+}
+
+#main_monsin {
+    display: inline; /* for IE6 */
+    float: left;
+    width: 750px;
+    margin: 5px;
+    margin-right: 0;
+    padding: 10px;
+    background: #fff;
+}
+
+#sub {
+    display: inline;
+    float: right;
+    width: 200px;
+    margin: 5px;
+    padding: 0;
+}
+
+#pageTop {
+    /zoom:1; /* for IE6 */
+    clear: both;
+    background: #fff;
+}
+
+#footer {
+    clear: both;
+    background: #fff;
+}
+
+
+/* ========HEADER CUSTOMIZE======== */
+#header h1 {
+    margin: 0;
+    padding: 10px;
+    font-size: 24px;
+}
+
+    #header h1 a {
+        color: #333;
+    }
+
+#header #pr p {
+    margin: 0;
+    padding: 10px;
+    font-size: 11px;
+}
+
+
+/* ========MENU CUSTOMIZE======== */
+#menu ul {
+    margin: 0;
+    padding: 0;
+}
+
+#menu li {
+    float: left;
+    color: #333;
+    text-align: center;
+    list-style-type: none;
+    border-top: 1px solid #666;
+    border-left: 1px solid #666;
+}
+
+    #menu li a {
+        display: block;
+        width: 155px;
+        color: #333;
+        line-height: 40px;
+        text-decoration: none;
+        border-bottom: 3px solid #0089a1;
+        background: #fff;
+        background: linear-gradient(top, #fff, #efefef);
+        background: -moz-linear-gradient(top, #fff, #efefef); /* Firefox用 */
+        background: -o-linear-gradient(top, #fff, #efefef); /* Opera用 */
+        background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#efefef)); /* Safari,Google Chrome用 */
+    }
+
+    #menu li:first-child {
+        border-left: none;
+    }
+
+    #menu li a.active {
+        color: #fff;
+        text-decoration: none;
+        background: #0F98AD;
+        background: linear-gradient(top, #1EACBF, #0F98AD);
+        background: -moz-linear-gradient(top, #1EACBF, #0F98AD); /* Firefox用 */
+        background: -o-linear-gradient(top, #1EACBF, #0F98AD); /* Opera用 */
+        background: -webkit-gradient(linear, left top, left bottom, from(#1EACBF), to(#0F98AD)); /* Safari,Google Chrome用 */
+    }
+
+    #menu li a:hover {
+        color: #fff;
+        text-decoration: none;
+        background: #0F98AD;
+        background: linear-gradient(top, #1EACBF, #0F98AD);
+        background: -moz-linear-gradient(top, #1EACBF, #0F98AD); /* Firefox用 */
+        background: -o-linear-gradient(top, #1EACBF, #0F98AD); /* Opera用 */
+        background: -webkit-gradient(linear, left top, left bottom, from(#1EACBF), to(#0F98AD)); /* Safari,Google Chrome用 */
+    }
+
+
+/* ========TOPICPATH CUSTOMIZE======== */
+#topicPath {
+    width: 769px;
+    padding: 5px;
+    background: #fff;
+}
+
+
+/* ========MAIN CONTENTS CUSTOMIZE======== */
+#main h2 {
+    margin-bottom: 5px;
+    padding: 5px 0;
+    font-size: 16px;
+    border-bottom: 3px double #999;
+}
+
+#main h3 {
+    margin-bottom: 5px;
+    padding: 5px;
+    font-size: 14px;
+    border-left: 5px solid #0089a1;
+    border-bottom: 1px dotted #999;
+}
+
+#main h4 {
+    margin-bottom: 5px;
+    padding: 5px;
+    font-size: 13px;
+    color: #fff;
+    background: #0089a1;
+}
+
+#main h5 {
+    margin-bottom: 5px;
+    font-size: 13px;
+    border-bottom: 1px dotted #999;
+}
+
+#main h6 {
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+#main p {
+    margin: 0 0 1em 0;
+}
+
+#main dt {
+    margin-bottom: 3px;
+}
+
+#main dd {
+    padding: 0;
+    margin: 0 0 0.5em 1em;
+    padding: 3px;
+    background: #eee;
+}
+
+/* INFORMATION CUSTOMIZE */
+* html body #main dl.information dd div {
+    display: inline-block;
+}
+
+#main dl.information dt {
+    float: left;
+    width: 8em;
+    margin: 0;
+    padding: 0;
+}
+
+#main dl.information dd {
+    margin: 0 0 0.5em 8em;
+    padding: 0;
+    background: transparent;
+}
+
+#main table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    #main table th {
+        padding: 5px;
+        font-size: 12px;
+        text-align: left;
+        border: 1px solid #aaa;
+        background: #f0f7fc;
+    }
+
+    #main table td {
+        padding: 5px;
+        font-size: 12px;
+        text-align: left;
+        border: 1px solid #aaa;
+    }
+
+
+/* ========SUBCONTENTS CUSTOMIZE======== */
+#sub .section {
+    margin-bottom: 10px;
+}
+
+#sub h3 {
+    padding: 5px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    border-bottom: 3px solid #0089a1;
+    background: #efefef;
+    background: -linear-gradient(top, #fff, #efefef);
+    background: -moz-linear-gradient(top, #fff, #efefef); /* Firefox用 */
+    background: -o-linear-gradient(top, #fff, #efefef); /* Opera用 */
+    background: -webkit-gradient(linear, left top, left bottom, from(#fff), to(#efefef)); /* Safari,Google Chrome用 */
+}
+
+#sub ul {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+}
+
+#sub li {
+    width: 198px;
+    margin-top: -1px;
+    line-height: 1.4;
+    list-style: none;
+    border-top: 1px solid #ccc;
+}
+
+    #sub li a {
+        display: block;
+        padding: 10px 5px;
+    }
+
+
+/* ========PAGETOP CUSTOMIZE========= */
+#pageTop {
+    margin-top: 10px;
+    padding: 5px;
+    text-align: right;
+}
+
+    #pageTop a {
+        padding: 5px 5px 5px 17px;
+        background: url("../images/bg_pagetop.gif") 7px 50% no-repeat;
+        font-size: 11px;
+        outline: none;
+    }
+
+/* additional customization*/
+
+h2 {
+    color: #0089a1; /*文字色*/
+    padding: 0.3em 0; /*上下の余白*/
+    border-top: solid 3px #0089a1; /*上線*/
+    border-bottom: solid 3px #0089a1; /*下線*/
+}
+
+input[type="text"],
+textarea {
+    padding: 0.8em;
+    outline: none;
+    border: 1px solid #DDD;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    font-size: 13px;
+}
+
+textarea {
+    width: 200px;
+}
+
+input[type="text"]:focus,
+texture:focus {
+    box-shadow: 0 0 7px #3498db;
+    border: 1px solid #3498db;
+}
+
+.square_btnB {
+    /* 文字サイズを1.4emに指定 */
+    font-size: 1em;
+    /* 文字の太さをboldに指定 */
+    font-weight: bold;
+    /* 縦方向に10px、
+     * 横方向に30pxの余白を指定 */
+    padding: 10px 30px;
+    position: relative;
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    text-decoration: none;
+    color: #FFF;
+    background: #3498db; /*色*/
+    border: solid 1px #3498db; /*線色*/
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+}
+
+.square_btn:active { /*押したとき*/
+    border: solid 1px #03A9F4;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+.square_btnN {
+    /* 文字サイズを1.4emに指定 */
+    font-size: 1em;
+    /* 文字の太さをboldに指定 */
+    font-weight: bold;
+    /* 縦方向に10px、
+     * 横方向に30pxの余白を指定 */
+    padding: 10px 30px;
+    position: relative;
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    text-decoration: none;
+    color: #FFF;
+    background: #3498db; /*色*/
+    border: solid 1px #3498db; /*線色*/
+    border-radius: 4px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+    text-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    left: 240px;
+}
+
+.square_btn:active { /*押したとき*/
+    border: solid 1px #03A9F4;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+h3 {
+    border-bottom: inset 5px #3498db;
+    border-left: inset 5px #3498db;
+    padding: 3px 3px;
+}
+
+#search_button {
+    font-size: 1.5em;
+}
+
+#insert_button {
+    font-size: 1.5em;
+}
+
+h4 {
+    border-bottom: inset 5px #3498db;
+    padding: 3px 3px;
+}
+
+.insert_form_li {
+    list-style: none;
+}
+
+#tabcontrol a {
+    width: calc(100%);
+    height: 40px;
+    border-bottom: 2px solid #668ad8;
+    background-color: #e1f3ff;
+    line-height: 50px;
+    font-size: 16px;
+    text-align: center;
+    color: #545454;
+    display: block;
+    float: left;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+    /* ▼タブにマウスポインタが載った際(任意) */
+
+    #tabcontrol a:hover {
+        text-decoration: underline; /* 文字に下線を引く */
+        background-color: #668ad8; /* 背景色：青色 */
+        color: #ffffff;
+    }
+
+.tab {
+    position: relative;
+    padding: 80px 0px 0px 0px;
+    min-height: 80px;
+}
+
+
+#wrap {
+    width: 700px;
+    text-align: left;
+    margin: 0 auto;
+}
+
+#inner {
+    margin: 0 10px;
+}
+
+#tabControl {
+    width: 300px;
+    float: left;
+}
+
+#tabBody {
+    width: 450px;
+    float: right;
+    position: relative;
+    left: 100px;
+    top: -1734px;
+}
+
+#mainWrap {
+    width: 450px;
+    float: right;
+}
+
+#sideWrap {
+    width: 300px;
+    float: left;
+    background: #e1f3ff;
+}
+
+#progress_bar {
+    margin: 20px;
+    width: 400px;
+    height: 16px;
+}
+/* ========FOOTER CUSTOMIZE======== */
+.copyright {
+    clear: both;
+    padding: 10px 0;
+    font-style: normal;
+    font-size: 11px;
+    text-align: center;
+    border-top: 1px solid #ccc;
+}

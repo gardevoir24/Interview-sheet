@@ -1,0 +1,291 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="../../css/common.css" type="text/css" />
+    <title>title</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</head>
+<body>
+    <h2>証の検索</h2><br />
+                    <form id="form">
+                        <input type="text" id="key" size="50" value="">
+                        <input id="search_button" class="square_btn" type="button" value="検索" onclick="onClickButton();">
+                    </form>
+    
+    <br /><h3>検索結果</h3>
+    <div id="number"></div>
+    <div id="content"></div>
+    <br /><div id="other_symptoms_line" style="display:none"><h3>症状候補</h3></div>
+    <div id="checkbox"></div>
+    <table border="0" style="border-style:none">
+        <tr>
+            <th> <input type="button" class="square_btn" style="display:none" id="next_button" onclick="onClickNextButton();" value="次の１０件を表示"></th>
+            <th> <input type="button" class="square_btn" style="display:none" id="back_button" onclick="onClickBackButton();" value="前の１０件を表示"></th>
+        </tr>
+    </table>
+    <br /><div id="line" style="display:none"><h3>証の詳細(証をクリックすると表示されます)</h3></div>
+    <div id="advance"></div>
+    <script type="text/javascript">
+        (function () {
+            num_target = document.getElementById("number");
+            con_target = document.getElementById("content");
+            advance_target = document.getElementById("advance");
+            other_symptoms_target = document.getElementById("other_symptoms");
+            divNode = document.getElementById("checkbox");
+            empty_flag = false;
+            disabled_char_flag = false;
+            admin_url = "https://p95hnwcvz2.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+            search_url = "https://mnzhqqdh8f.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+            pointer = 0;
+        }());
+
+
+        function checkForm() {
+            if (document.forms.form.key.value == "") {
+                empty_flag = true;
+            } else {
+                var result = document.forms.form.key.value.match(/[;&"'\/\*\\\.\?\[\]]/);
+                if (result != null) {
+                    disabled_char_flag = true;
+                }
+            }
+        }
+
+        function onClickNextButton() {
+            createSelectBox(++pointer, 10, symptoms);
+
+        }
+        function onClickBackButton() {
+            createSelectBox(--pointer, 10, symptoms);
+
+        }
+        function itemSelected(index) {
+            var name = "証名:" + JSONparsed[index].name;
+            var description = "説明:" + JSONparsed[index].description;
+            var region = "部位:" + JSONparsed[index].region;
+            var symptoms = "症状:" + JSONparsed[index].symptoms;
+            var treatments_name = "治療法:" + JSONparsed[index].treatments_name;
+            var tongue_sign = "舌質:" + JSONparsed[index].tongue_sign;
+            var tongue_coat = "舌苔:" + JSONparsed[index].tongue_coat;
+            var pulse_sign = "脈象:" + JSONparsed[index].pulse_sign;
+            var crude_drugs = "方剤例:" + JSONparsed[index].crude_drugs;
+            var prescriptions = "薬物:" + JSONparsed[index].prescriptions;
+            var str = name + "<br>" + description + "<br>" + region + "<br>" + symptoms + "<br>" +
+                treatments_name + "<br>" + tongue_sign + "<br>" + tongue_coat + "<br>" + pulse_sign + "<br>" + crude_drugs + "<br>" +
+                prescriptions + "<br>";
+            advance_target.innerHTML = str;
+        }
+
+        function displaySymptoms(symptoms) {
+            var display_text = "";
+            for (var i = 0; i < symptoms.length; i++) {
+                display_text += symptoms[i] + ",";
+            }
+            alert(symptoms);
+            other_symptoms_target.innerHTML = display_text;
+        }
+        function createInputAttribute(smp_name, checked_smps, i) {
+            var input = document.createElement('input');
+            input.setAttribute('type', 'checkbox');
+            input.setAttribute('id', 'smp_check');
+            input.setAttribute('name', smp_name);
+            input.setAttribute('index', i);
+            input.setAttribute('onchange', 'onChangeListener(this.name,this.checked)');
+            if ($.inArray(smp_name, checked_smps) >= 0) {
+                input.setAttribute('checked', 'checked');
+            }
+            var label = document.createElement('label');
+            label.htmlFor = 'smp';
+            label.appendChild(document.createTextNode(smp_name));
+            divNode.appendChild(input);
+            divNode.appendChild(label);
+            divNode.appendChild(document.createElement("br"));
+        }
+
+        function createSelectBox(display_start, display_width, arr) {
+            const checked_smps = resetCheckBox();
+            document.getElementById('other_symptoms_line').style.display = 'block';
+            if (display_start == 0 && arr.length > display_width) {
+                for (var i = 0; i < display_width; i++) {
+                    createInputAttribute(arr[i], checked_smps);
+                }
+                document.getElementById('next_button').style.display = 'block';
+                document.getElementById('back_button').style.display = 'none';
+            } else if (arr.length <= display_width * (display_start + 1)) {
+                for (var i = display_start * display_width; i < arr.length; i++) {
+                    createInputAttribute(arr[i], checked_smps);
+                }
+                if (display_start == 0) {
+                    document.getElementById('next_button').style.display = 'none';
+                    document.getElementById('back_button').style.display = 'none';
+                } else {
+                    document.getElementById('next_button').style.display = 'none';
+                    document.getElementById('back_button').style.display = 'block';
+                }
+
+            } else {
+                for (var i = display_start * display_width; i < (display_start * display_width) + display_width; i++) {
+                    createInputAttribute(arr[i], checked_smps);
+                }
+                document.getElementById('next_button').style.display = 'block';
+                document.getElementById('back_button').style.display = 'block';
+            }
+        }
+
+        function onChangeListener(value, checked) {
+            if (checked) {
+                search_keys.push(value);
+            } else {
+                search_keys = search_keys.filter(function (v) {
+                    return v != value;
+                });
+            }
+            let excepted_index = getExceptedIndexFromSmparr(JSONparsed, search_keys);
+            displayPatternList(JSONparsed, excepted_index);
+            displayOtherSmps(JSONparsed, search_keys, excepted_index);
+        }
+
+
+        function getExceptedIndexFromSmparr(origin_data, keys) {
+            let excepted_index = [];
+            for (var j = 0; j < origin_data.length; j++) {
+                let hit_count = 0;
+                for (var i = 1; i < keys.length; i++) {
+                    if ($.inArray(keys[i], origin_data[j].symptoms) >= 0) {
+                        hit_count++;
+                    }
+                }
+                if (keys.length - 1 != hit_count && $.inArray(j, excepted_index) < 0) {
+                    excepted_index.push(j);
+                }
+
+            }
+            return excepted_index;
+
+        }
+
+
+        function displayOtherSmps(origin_data, key_smps, excepted_index) {
+
+            symptoms = [];
+            let symptom_info_arr = [];
+            for (var i = 0; i < origin_data.length; i++) {
+
+                if ($.inArray(i, excepted_index) < 0) {
+                    for (var smp_index = 0; smp_index < origin_data[i].symptoms.length; smp_index++) {
+                        const smp = origin_data[i].symptoms[smp_index];
+                        if (!smp.includes(key_smps[0]) && $.inArray(smp, symptoms) < 0) {
+                            let symptom_info = {
+                                name: smp,
+                                count: 1
+                            };
+                            symptom_info_arr.push(symptom_info);
+                            symptoms.push(smp);
+                        } else if ($.inArray(smp, symptoms) >= 0) {
+                            for (var j = 0; j < symptom_info_arr.length; j++) {
+                                if (symptom_info_arr[j].name == smp) {
+                                    symptom_info_arr[j].count++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            symptom_info_arr = symptom_info_arr.sort(function (a, b) {
+                return (b.count - a.count);
+            });
+            symptoms = [];
+
+            const hit_count = origin_data.length - excepted_index.length;
+            let displayable_percentage = 100;
+            for (var i = 0; i < symptom_info_arr.length; i++) {
+                const percentage = Math.round(symptom_info_arr[i].count / hit_count * 100);
+                symptoms.push(symptom_info_arr[i].name/* + "(" + percentage + "%)"*/);
+                if (i < 10 || displayable_percentage == percentage) {
+                    displayable_percentage = percentage;
+                }
+            }
+            createSelectBox(0, 10, symptoms);
+        }
+
+
+        function displayPatternList(origin_data, excepted_index) {
+
+            var result = "";
+            var found_count = 0;
+            for (var index = 0; index < origin_data.length; index++) {
+                if ($.inArray(index, excepted_index) < 0) {
+                    var advance_a_start = "<a href=\"#\" onclick=\"itemSelected(" + index + ");return false;\">";
+                    var a_end = "</a>";
+                    var name = advance_a_start + origin_data[index].name + a_end;
+                    result += name + "<br>";
+                    found_count++;
+                }
+            }
+            num_target.innerHTML = found_count + "件見つかりました";
+            advance_target.innerHTML = "";
+            con_target.innerHTML = result;
+
+        }
+
+
+        function resetCheckBox() {
+            let checked_smps = [];
+            for (var i = divNode.childNodes.length - 1; i >= 0; i--) {
+                if (divNode.childNodes[i].checked) {
+                    checked_smps.push(divNode.childNodes[i].name);
+                }
+                divNode.removeChild(divNode.childNodes[i]);
+            }
+            return checked_smps;
+        }
+
+
+        function onClickButton() {
+            empty_flag = false;
+            disabled_char_flag = false;
+            checkForm();
+            if (empty_flag) {
+                alert("キーワードを入力してください");
+            } else if (disabled_char_flag) {
+                alert("フォームに使用不可能文字が含まれています(*、/、￥、＆、\"、'など)。");
+            } else {
+                var key = document.forms.form.key.value;
+                var JSONdata = {
+                    q: key
+                };
+                $.ajax({
+                    type: 'post',
+                    url: admin_url,
+                    data: JSON.stringify(JSONdata),
+                    contentType: 'application/JSON',
+                    dataType: 'JSON',
+                    scriptCharset: 'utf-8',
+                    success: function (data) {
+                        var str = JSON.stringify(data);
+                        JSONparsed = JSON.parse(str);
+                        search_keys = [];
+                        search_keys.push(key);
+                        displayOtherSmps(JSONparsed, search_keys, []);
+
+                        displayPatternList(JSONparsed);
+                        document.getElementById('line').style.display = 'block';
+
+                    },
+                    error: function (data) {
+                        alert("データの検索に失敗しました");
+                    }
+                });
+            }
+        }
+    </script>
+
+</body>
+
+
+</html>

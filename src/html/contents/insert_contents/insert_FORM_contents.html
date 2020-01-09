@@ -1,0 +1,188 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+    <title>Form</title>
+
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script type="text/javascript">
+        function check(txt) {
+            ret = confirm(txt);
+            if (ret == true) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        function sendItem(JSONdata) {
+            if (check(JSON.stringify(JSONdata))) {
+                var admin_url = "https://mnzhqqdh8f.execute-api.ap-northeast-1.amazonaws.com/stage/resource"
+                document.forms.form.name.value = JSON.stringify(JSONdata);
+                $.ajax({
+                    type: 'post',
+                    url: admin_url,
+                    data: JSON.stringify(JSONdata),
+                    contentType: 'application/JSON',
+                    dataType: 'JSON',
+                    scriptCharset: 'utf-8',
+                    success: function (data) {
+                        alert("データを登録しました");
+                        document.forms.form.name.value = "";
+                        document.forms.form.description.value = "";
+                        document.forms.form.region.value = "";
+                        document.forms.form.symptoms.value = "";
+                        document.forms.form.treatments_name.value = "";
+                        document.forms.form.tongue_sign.value = "";
+                        document.forms.form.tongue_coat.value = "";
+                        document.forms.form.pulse_sign.value = "";
+                        document.forms.form.crude_drugs.value = "";
+                        document.forms.form.prescriptions.value = "";
+                        document.forms.form.references.value = "";
+                    },
+                    error: function (data) {
+                        alert("データの登録に失敗しました");
+                    }
+                });
+            }
+        }
+
+        function checkForm() {
+            empty_flag = false;
+            disabled_char_flag = false;
+            var name_v = document.forms.form.name.value;
+            var description_v = document.forms.form.description.value;
+            var region_v = document.forms.form.region.value.split("、");
+            var symptoms_v = document.forms.form.symptoms.value.split("、");
+            var treatments_name_v = document.forms.form.treatments_name.value.split("、");
+            var tongue_sign_v = document.forms.form.tongue_sign.value.split("、");
+            var tongue_coat_v = document.forms.form.tongue_coat.value.split("、");
+            var pulse_sign_v = document.forms.form.pulse_sign.value.split("、");
+            var crude_drugs_v = document.forms.form.crude_drugs.value.split("、");
+            var prescriptions_v = document.forms.form.prescriptions.value.split("、");
+            var references_v = document.forms.form.references.value.split("、");
+            var inputs_one_element = [name_v, description_v];
+            var inputs_some_element = [region_v, symptoms_v, treatments_name_v, tongue_sign_v, tongue_coat_v, pulse_sign_v,
+                crude_drugs_v, prescriptions_v, references_v
+            ];
+            
+            inputs_one_element.forEach(function (value) {
+                if (value == "") {
+                    empty_flag = true;
+                } else {
+                    var result = value.match(/[;&"'\/\*\\\.\?\[\]]/);
+                    if (result != null) {
+                        disabled_char_flag = true;
+                    }
+                }
+            });
+           
+            inputs_some_element.forEach(function (value) {
+                if (value[0] == "") {
+                    empty_flag = true;
+                } else {
+                    value.forEach(function (value_2) {
+                        var result = value_2.match(/[;&"'\/\*\\\.\?\[\]]/);
+                        if (result != null) {
+                            disabled_char_flag = true;
+                        }
+                    });
+                }
+            });
+            
+            if (empty_flag) {
+                alert("空欄のフォームが存在します。\n入力内容がなければ空白を入力してください。");
+            } else if (disabled_char_flag) {
+                alert("フォームに使用不可能文字が含まれています(*、/、￥、＆、\"、'など)。");
+            } else {
+               
+                var JSONitem = {
+                    name: name_v,
+                    description: description_v,
+                    region: region_v,
+                    symptoms: symptoms_v,
+                    treatments_name: treatments_name_v,
+                    tongue_sign: tongue_sign_v,
+                    tongue_coat: tongue_coat_v,
+                    pulse_sign: pulse_sign_v,
+                    crude_drugs: crude_drugs_v,
+                    prescriptions: prescriptions_v,
+                    references: references_v
+                };
+                var JSONdata = {
+                    Items: [JSONitem]
+                };
+                sendItem(JSONdata);
+            }
+        }
+
+        function onClick() {
+            checkForm();
+        }</script>
+
+
+</head>
+<body>
+    <h2>フォームから登録</h2>
+    <br /><h3>登録フォーム</h3>
+    <label id="description">入力項目が複数あるものは「、(全角コンマ)」で区切って入力してください。</label><br><br>
+    <form id="form">
+        <ul>
+            <li class="insert_form_li">
+                <label for="name">name(複数指定不可)</label><br />
+                <input type="text" id="name" size="50" value=""><br /><br />
+            </li>
+
+            <li class="insert_form_li">
+                <label for="description">description(複数指定不可)</label><br />
+                <input type="text" id="description" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <label for="region">region</label><br />
+                <input type="text" id="region" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <label for="symptoms">symptoms</label><br />
+                <input type="text" id="symptoms" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <label for="treatments_name">treatments_name</label><br />
+                <input type="text" id="treatments_name" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <label for="tongue_sign">tongue_sign</label><br />
+                <input type="text" id="tongue_sign" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <label for="tongue_coat">tongue_coat</label><br />
+                <input type="text" id="tongue_coat" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <label for="pulse_sign">pulse_sign</label><br />
+                <input type="text" id="pulse_sign" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <label for="crude_drugs">crude_drugs</label><br />
+                <input type="text" id="crude_drugs" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <label for="prescriptions">prescriptions</label><br />
+                <input type="text" id="prescriptions" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <label for="references">references</label><br />
+                <input type="text" id="references" size="50" value=""><br /><br />
+            </li>
+            <li class="insert_form_li">
+                <input id="insert_button" class="square_btn" type="button" name="button" value="登録" onclick="onClick();">
+            </li>
+        </ul>
+    </form>
+</body>
+</html>

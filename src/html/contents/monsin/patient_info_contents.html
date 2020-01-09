@@ -1,0 +1,189 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+    <title>中国伝統医学　問診表</title>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</head>
+	<body>
+	<div id="wrap">
+			<div id="header">
+				<h2>
+				問診表
+				</h2><br />
+			</div><!-- /header -->
+			<div id="inner">
+			<div id="kakunin"></div>
+					<p id="tabControl">
+					</p><!-- /tabControl -->
+					<form id="tabBody">
+					</form><!-- /tabBody -->
+			</div><!-- /inner -->
+	</div><!-- /wrap -->
+
+<script type="text/javascript">
+/*ページ移動せずに内容を変更するタブ機能の作り方*/
+
+	(function () {
+		//alert("called");
+		form_target = document.getElementById("tabBody");
+		empty_flag = false;
+		disabled_char_flag = false;
+		admin_url = "https://y4dda4qzjg.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+		patient_admin_url = "https://8sqt5tbyjl.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+		getUrlVars();
+		window.onerror = function(msg, url, linenumber) {
+		alert('Error message: '+msg+'\nURL: '+url+'\nLine Number: '+linenumber);
+		return true;
+		}
+	}());
+
+	function getUrlVars()
+	{
+		var vars = [], max = 0, hash = "", array = "";
+		var url = window.location.search;
+		//alert(url);
+		//?を取り除くため、1から始める。複数のクエリ文字列に対応するため、&で区切る
+		hash  = url.slice(1).split('\=');
+		var patientId = hash[1] ;
+		alert(patientId);
+		var largeSub = "";
+		//getpatientItems();
+
+		var jsonData = {
+					patientId: patientId
+				};
+				$.ajax({
+					type: 'POST',
+					url: patient_admin_url,
+					data : JSON.stringify(jsonData),
+					contentType: 'application/JSON',
+					dataType: 'JSON',
+					scriptCharset: 'utf-8',
+					success: function (data) {
+						//確認用
+						var str = JSON.stringify(data);
+						//alert(data[0].id.LargeSub);
+						for(var index=0; index < data.length; index++) {
+							//タブの表示
+							if(largeSub != data[index].id.LargeSub){
+								tabForm = document.getElementById("tabControl");
+								var createTab = document.createElement("div");
+								//createTab.style.float = "left";
+								var tab = "<a href=\"#tabpage"+data[index].id.LargeNum+"\">"+data[index].id.LargeSub+"</a>";
+								createTab.innerHTML = tab;
+								tabForm.appendChild(createTab);
+
+								formLargeSet(data[index].id.LargeSub,data[index].id.LargeNum);
+								largeSub = data[index].id.LargeSub;
+								//alert(JSON.stringify(data));
+							}
+						}
+						displayInfo(data);
+						tabs = document.getElementById('tabControl').getElementsByTagName('a');
+						forms = document.getElementById('tabBody').getElementsByTagName('div');
+						alert("tabs"+tabs.length);
+						for(var i=0; i<tabs.length; i++) {
+						tabs[i].onclick = changeTab;
+						}
+						tabs[0].onclick();
+
+					},
+					error: function (data) {
+						alert("データの取得に失敗しました");
+					}
+				});
+	 }
+
+	function displayInfo(patientInfo){
+		conSub = [];
+		backSub = "";
+		backLargeNum = "";
+		//alert(patientInfo.length);
+		for(var index=0; index < patientInfo.length; index++){
+			//alert(patientInfo[index].id.SmallSub);
+			if( backSub=="" || backSub == patientInfo[index].id.SmallSub){
+					conSub.push(patientInfo[index].A);
+					backSub = patientInfo[index].id.SmallSub;
+					backLargeNum = patientInfo[index].id.LargeNum;
+				}else{
+					if(backSub != conSub.join("　")){
+						switch (true){
+							//smallSub = patientInfo[index].id.SmallSub;
+							case /^氏名$/.test(backSub):
+								var patient_name = conSub.join("　");
+								var qa="<p>"+backSub+" : "+patient_name+"</p>";
+								break;
+							case /^氏名フリガナ$/.test(backSub):
+								var patient_name_kana = conSub.join("　");
+								var qa="<p>"+backSub+" : "+patient_name_kana+"</p>";
+								break;
+							case /生年月日/.test(backSub):
+								var qa="<p>"+backSub+" : "+conSub[0]+"年"+conSub[1]+"月"+conSub[2]+"日</p>"
+								break;
+							default:
+								var patient_A = conSub.join("");
+								var qa = "<p>"+backSub+" : "+patient_A+"</p>";
+							}
+						}else{
+							var patient_A = conSub.join("");
+							var qa = "<p>"+patient_A+"</p>";
+						}
+						var setQA = document.createElement("div");
+						setQA.id = "tabpage" + backLargeNum;
+						setQA.innerHTML = qa;
+						form_target.appendChild(setQA);
+						conSub = [];
+						conSub.push(patientInfo[index].A);
+						backSub = patientInfo[index].id.SmallSub;
+						backLargeNum = patientInfo[index].id.LargeNum;
+				}
+			}
+		}
+
+		function formLargeSet(object,LargeNum){
+			//alert("Large:"+object);
+			var form_element = document.createElement("div");
+			form_element.id = "tabpage" + LargeNum;
+			var Large = "<b>" + object + "</b>"
+			form_element.innerHTML = Large;
+			form_target.appendChild(form_element);
+		}
+
+	function changeTab() {
+		 // ▼href属性値から対象のid名を抜き出す
+		 var targetid = this.href.substring(this.href.indexOf('#')+1,this.href.length);
+		 //alert(targetid);
+		 //alert(forms.length);
+		 // ▼指定のタブページだけを表示する
+		 for(var i=0; i<forms.length; i++) {
+				if( forms[i].id != targetid ) {
+					 forms[i].style.display = "none";
+				}
+				else {
+					 forms[i].style.display = "block";
+				}
+		 }
+
+		 // ▼クリックされたタブを前面に表示する
+		 for(var i=0; i<tabs.length; i++) {
+				tabs[i].style.zIndex = "0";
+		 }
+		 this.style.zIndex = "10";
+		 // ▼ページ遷移しないようにfalseを返す
+		 return false;
+	}
+
+</script>
+
+</body>
+
+
+</html>

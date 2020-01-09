@@ -1,0 +1,171 @@
+﻿<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+    <title>title</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</head>
+<body>
+    <h2>CSVファイルからの追加</h2><br />
+    <br /><h3>フォーマット</h3>
+    <a href="../../../formats/format_csv.csv">こちら</a>からフォーマットをダウンロードできます。このフォーマット通りに入力してください。
+    <br /><br /><h3>データ追加</h3>
+    以下のボタンからCSVファイルを選択してください。<br /><br />
+    <input type='file' onchange='openFile(event)'><br>
+    <div id="number"></div>
+    <div id="content"></div>
+    <br /><div id="line" style="display:none"><h4>証の詳細(証をクリックすると表示されます)</h4></div>
+    <div id="advance"></div>
+    <div id="submit" style="display:none">
+       <br /> <h4>データの登録</h4>
+        上記のデータに相違がなければ以下の登録ボタンを押してください。<br />
+            <input id="insert_button" class="square_btn" type="button" name="button" value="登録" onclick="onClickButton();">
+    </div>
+    <script type="text/javascript">
+        function onClickButton() {
+            const url = "https://mnzhqqdh8f.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+            const items = "{\"Items\":" + json_text + "}";
+            alert("現在登録中です。少々お待ちください。");
+            $.ajax({
+                type: 'post',
+                url: url,
+                data: items,
+                contentType: 'application/JSON',
+                dataType: 'JSON',
+                scriptCharset: 'utf-8',
+                success: function (data) {
+                    alert("データを登録しました");
+                },
+                error: function (data) {
+                    alert("データの登録に失敗しました");
+                }
+            });
+        }
+
+        function itemSelected(index) {
+            advance_target = document.getElementById("advance");
+            advance_target.innerHTML = advance_text[index];
+        }
+
+        function convertRecord(csv_record) {
+            const comma = ",";
+            const columns = csv_record.split(comma);
+
+            for (var i = 1; i < columns.length; i++) {
+                columns[i] = columns[i].replace(/\?/g, ",");
+            }
+            return columns;
+        }
+        function splitRecords(csv_origin) {
+            const new_line_code = "\r\n";
+            const line_splited = csv_origin.split(new_line_code);
+            return line_splited;
+        }
+        //レコード件数を解析
+        function getRecordsLength(csv_line_splited) {
+            if (csv_line_splited[csv_line_splited.length - 1] == "") return csv_line_splited.length - 2;
+            else return csv_line_splited.length - 1;
+
+        }
+        //カラムを取得
+        function getcolumnArray(csv_column_line) {
+            const comma = ",";
+            var result = [];
+            result = csv_column_line.split(comma);
+            return result;
+        }
+        function surroundWithAtag(index) {
+            let a_start = "<a href=\"#\" onclick=\"itemSelected('" + index + "');return false;\">";
+            let a_end = "</a>";
+            return a_start + json_parsed_object[index].name + a_end;
+        }
+        function displayPatternName(html_pattern_names) {
+
+            con_target = document.getElementById("content");
+            const br = "<br>";
+            let html_text = "";
+
+            for (var i = 0; i < html_pattern_names.length; i++) {
+                html_text += html_pattern_names[i] + br;
+            }
+            con_target.innerHTML = html_text;
+        }
+        function createAdvanceText(record_object, columns) {
+            let html_text = "";
+            const br = "<br>";
+            for (var i = 0; i < columns.length; i++) {
+                let cell_text = "";
+                if (i > 2) {
+                    for (let j = 0; j < record_object[columns[i]].length; j++) {
+                        cell_text += record_object[columns[i]][j] + ",";
+                    }
+                } else {
+                    cell_text += record_object[columns[i]] + ","
+                }
+                html_text += columns[i] + ":" + cell_text + br;
+            }
+            return html_text;
+        }
+        let openFile = function (event) {
+            const column_size = 11;
+            const input = event.target;
+            let record_length = 0;
+            advance_text = [];
+
+            let reader = new FileReader();
+            reader.onload = function () {
+                const csv_origin = reader.result;
+                let names = "";
+                let json_records = [];//
+                const csv_line_splited = splitRecords(csv_origin);//改行コードでスプリット(レコード毎に分割)
+
+                const records_length = getRecordsLength(csv_line_splited);//レコードの件数解析
+                var columns = getcolumnArray(csv_line_splited[0]);//カラムを取得
+                for (var i = 1; i <= records_length; i++) {
+                    let record_temp = new Object();
+                    const record = convertRecord(csv_line_splited[i]);//ｉ番目のレコードをカラムで分割
+
+                    for (let j = 0; j < column_size; j++) {
+                        if (columns[j] == "name" || columns[j] == "description") {
+                            record_temp[columns[j]] = record[j]
+                        } else {
+                            record_temp[columns[j]] = record[j].split(",");//record_temp[カラム名]=カラムの値で各カラム値をセット(Map)
+                        }
+                    }
+                    json_records.push(record_temp);//完成したレコードを保存(MapArray)
+                }
+
+                json_text = JSON.stringify(json_records);//MapArrayをJsonオブジェクトに変換
+                json_parsed_object = JSON.parse(json_text);//扱いやすくなるように変換
+                num_target = document.getElementById("number");
+
+                let html_pattern_names = [];
+
+                for (var i = 0; i < json_parsed_object.length; i++) {//レコードの数だけループ
+                    advance_text.push(createAdvanceText(json_parsed_object[i], columns));//詳細情報を作成
+                    const html_pattern_name = surroundWithAtag(i);//表示する証名に詳細情報へのリンクを付与
+                    html_pattern_names.push(html_pattern_name);//作成した証名を保存
+                }
+                num_target.innerHTML = records_length + "件のデータが見つかりました";
+                displayPatternName(html_pattern_names);
+                document.getElementById('line').style.display = 'block';
+                document.getElementById('submit').style.display = 'block';
+
+
+
+            };
+            reader.readAsText(input.files[0], "utf-8");
+        };
+
+
+    </script>
+
+</body>
+
+
+</html>
