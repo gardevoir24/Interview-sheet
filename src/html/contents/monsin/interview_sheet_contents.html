@@ -23,7 +23,7 @@
             <input id="next_button" type="button" value="次の質問へ進む" class="square_btnN" onclick="onclickNextButton();"><br>
             <div id="Category_div"></div>
             <div id="Question_div"></div>
-            <div id="Answer_div"></div>
+            <form id="Answer_div"></form>
             <div id="Progress">
                 <progress id="progress_bar" value="0" max="100">0%</progress>
                 <div id="progress_text"></div>
@@ -35,8 +35,14 @@
         /*ページ移動せずに内容を変更するタブ機能の作り方*/
 
         var count = 0;
+        var submit_count = 1;
         var datatmp;
         var max;
+
+        var jsonItem = {};
+        var submitItems = [];
+        var patient_name = [];
+        var patient_name_kana = [];
 
         (function () {
             //alert("called");
@@ -54,16 +60,21 @@
         }());
 
         function setForm() {
-            var form_element = document.createElement("p");
-            form_element.id = "tabpage" + datatmp.Items[count].LargeNum;
+            //var form_element = document.createElement("p");
+            //form_element.id = "tabpage" + datatmp.Items[count].LargeNum;
             //alert("form_element.id="+form_element.id);
+            //if (count > 1450) alert(count);
             var id = datatmp.Items[count].id;
+            //if (count > 1421) alert(datatmp.Items[count].LargeNum);
             var category = datatmp.Items[count].LargeSub;
             var question = datatmp.Items[count].MediumSub;
             var answer = datatmp.Items[count].SmallSub;
             var form1 = datatmp.Items[count].Form1;
 
             var backq = question;　//現在の質問
+
+            var element = document.getElementById("Answer_div");
+            var elements = element.elements;
 
             category_target.innerHTML = "<p><strong>カテゴリ</strong>：" + category + "</p>";
 
@@ -74,106 +85,250 @@
 
             answer_target.innerHTML = "<p><strong>回答　　</strong>："
 
-            while (backq == question) {
+            if ((question != "　") || (answer != "　")) {
 
-                id = datatmp.Items[count].id;
-                category = datatmp.Items[count].LargeSub;                
-                answer = datatmp.Items[count].SmallSub;
-                form1 = datatmp.Items[count].Form1;
+                while (backq == question) {
 
-                if (answer != "　") {
 
-                    if (question != answer) {
+                   // if (count > 1450) alert(count);
 
-                        if (form1 != "◎") {
-                            var qForm1 = "<label for=\"" + id + "\"><input type=\"checkbox\" name=\"questionId_" + id + "\" value=\"" + answer + "\" id=\"" + id + "\"   />  " + answer + "</label>";
-                            answer_target.innerHTML += qForm1 + "<br>";
-                            //category_target.appendChild(form_element);
-                            //alert(backq + "\n" + question + "\n" + qForm1);
+                    id = datatmp.Items[count].id;
+                    category = datatmp.Items[count].LargeSub;
+                    answer = datatmp.Items[count].SmallSub;
+                    form1 = datatmp.Items[count].Form1;
 
+                    if (answer != "　") {
+
+                        if (question != answer) {
+
+                            if (form1 != "◎") {
+                                var qForm1 = "<label for=\"" + id + "\"><input type=\"checkbox\" name=\"questionId_" + id + "\" value=\"" + answer + "\" id=\"" + id + "\"   />  " + answer + "</label>";
+                                answer_target.innerHTML += qForm1 + "<br>";
+                                //category_target.appendChild(form_element);
+                                //alert(backq + "\n" + question + "\n" + qForm1);
+
+
+                            } else {
+                                switch (true) {
+                                    case /^氏名$/.test(answer):
+                                        var qForm2 = "<p>" + answer + "（例:山田　太郎)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "\"> <input type=\"text\" size=\"20\" name=\"questionId_" + id + "\">";
+                                        break;
+                                    case /^氏名フリガナ$/.test(answer):
+                                        var qForm2 = "<p>" + answer + "（例:ヤマダ　タロウ)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_LNK\"> <input type=\"text\" size=\"20\" name=\"questionId_" + id + "_FNK\">";
+                                        break;
+                                    case /生年月日/.test(answer):
+                                        var qForm2 = "<p>" + answer + "（例:2000年1月1日)</p><input type=\"text\" size=\"4\" name=\"questionId_" + id + "\">年<input type=\"text\" size=\"2\" name=\"questionId_" + id + "\">月<input type=\"text\" size=\"2\" name=\"questionId_" + id + "\">日";
+                                        break;
+                                    case /年令|才/.test(answer):
+                                        var qForm2 = "<p>" + answer + "（例:17歳)</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
+                                        break;
+                                    case /性別/.test(answer):
+                                        var qForm2 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
+                                        break;
+                                    case /体重/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> kg";
+                                        break;
+                                    case /身長/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> cm";
+                                        break;
+                                    case /住所/.test(answer):
+                                        var qForm2 = "<p>郵便番号（例:123-1234）</p><input type=\"text\" size=\"10\" name=\"questionId_" + id + "\"><br><p>住所1(例:東京...)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "\"><br><p>住所2(例:マンション名等)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "\">";
+                                        break;
+                                    default:
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "\"><br>";
+                                }
+                                //id= questionId
+                                //alert("qFrom2:"+qForm2);
+                                answer_target.innerHTML += qForm2 + "</p>";
+
+                            }
 
                         } else {
+                            //id= questionId
                             switch (true) {
                                 case /^氏名$/.test(answer):
-                                    var qForm2 = "<p>" + answer + "（例:山田　太郎)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "\"> <input type=\"text\" size=\"20\" name=\"questionId_" + id + "\">";
+                                    var qForm3 = "<p>" + answer + "（例:山田　太郎)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_LN\"> <input type=\"text\" size=\"20\" name=\"questionId_" + id + "_FN\">";
                                     break;
                                 case /^氏名フリガナ$/.test(answer):
-                                    var qForm2 = "<p>" + answer + "（例:ヤマダ　タロウ)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_LNK\"> <input type=\"text\" size=\"20\" name=\"questionId_" + id + "_FNK\">";
+                                    var qForm3 = "<p>" + answer + "（例:ヤマダ　タロウ)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_LNK\"><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_FNK\">";
                                     break;
                                 case /生年月日/.test(answer):
-                                    var qForm2 = "<p>" + answer + "（例:2000年1月1日)</p><input type=\"text\" size=\"4\" name=\"questionId_" + id + "\">年<input type=\"text\" size=\"2\" name=\"questionId_" + id + "\">月<input type=\"text\" size=\"2\" name=\"questionId_" + id + "\">日";
+                                    var qForm3 = "<p>" + answer + "（例:2000年1月1日)</p><input type=\"text\" size=\"4\" name=\"questionId_" + id + "_year\">年<input type=\"text\" size=\"2\" name=\"questionId_" + id + "_mouth\">月<input type=\"text\" size=\"2\" name=\"questionId_" + id + "_day\">日";
                                     break;
                                 case /年令|才/.test(answer):
-                                    var qForm2 = "<p>" + answer + "（例:17歳)</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
+                                    var qForm3 = "<p>" + answer + "（例:17歳)</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
                                     break;
                                 case /性別/.test(answer):
-                                    var qForm2 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
+                                    var qForm3 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
                                     break;
                                 case /体重/.test(answer):
-                                    var qForm2 = "<p>" + answer + "</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> kg";
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> kg";
                                     break;
                                 case /身長/.test(answer):
-                                    var qForm2 = "<p>" + answer + "</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> cm";
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> cm";
                                     break;
                                 case /住所/.test(answer):
-                                    var qForm2 = "<p>郵便番号（例:123-1234）</p><input type=\"text\" size=\"10\" name=\"questionId_" + id + "\"><br><p>住所1(例:東京...)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "\"><br><p>住所2(例:マンション名等)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "\">";
+                                    var qForm3 = "<p>郵便番号（例:123-1234）</p><input type=\"text\" size=\"10\" name=\"questionId_" + id + "_posttal\"><br><p>住所1(例:東京...)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "_Street1\"><br><p>住所2(例:マンション名等)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "_Street2\">";
                                     break;
                                 default:
-                                    var qForm2 = "<p>" + answer + "</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "\"><br>";
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "\"><br>";
+                                //count++;
                             }
-                            //id= questionId
-                            //alert("qFrom2:"+qForm2);
-                            answer_target.innerHTML += qForm2 + "</p>";
-
+                            //alert("qForm3:"+qForm3);
+                            answer_target.innerHTML += qForm3 + "</p>";
                         }
 
-                    } else {
-                        //id= questionId
-                        switch (true) {
-                            case /^氏名$/.test(answer):
-                                var qForm3 = "<p>" + answer + "（例:山田　太郎)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_LN\"> <input type=\"text\" size=\"20\" name=\"questionId_" + id + "_FN\">";
-                                break;
-                            case /^氏名フリガナ$/.test(answer):
-                                var qForm3 = "<p>" + answer + "（例:ヤマダ　タロウ)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_LNK\"><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_FNK\">";
-                                break;
-                            case /生年月日/.test(answer):
-                                var qForm3 = "<p>" + answer + "（例:2000年1月1日)</p><input type=\"text\" size=\"4\" name=\"questionId_" + id + "_year\">年<input type=\"text\" size=\"2\" name=\"questionId_" + id + "_mouth\">月<input type=\"text\" size=\"2\" name=\"questionId_" + id + "_day\">日";
-                                break;
-                            case /年令|才/.test(answer):
-                                var qForm3 = "<p>" + answer + "（例:17歳)</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
-                                break;
-                            case /性別/.test(answer):
-                                var qForm3 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
-                                break;
-                            case /体重/.test(answer):
-                                var qForm3 = "<p>" + answer + "</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> kg";
-                                break;
-                            case /身長/.test(answer):
-                                var qForm3 = "<p>" + answer + "</p><input type=\"text\" size=\"3\" name=\"questionId_" + id + "\"> cm";
-                                break;
-                            case /住所/.test(answer):
-                                var qForm3 = "<p>郵便番号（例:123-1234）</p><input type=\"text\" size=\"10\" name=\"questionId_" + id + "_posttal\"><br><p>住所1(例:東京...)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "_Street1\"><br><p>住所2(例:マンション名等)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "_Street2\">";
-                                break;
-                            default:
-                                var qForm3 = "<p>" + answer + "</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "\"><br>";
-                            //count++;
-                        }
-                        //alert("qForm3:"+qForm3);
-                        answer_target.innerHTML += qForm3 + "</p>";
+
                     }
 
+                    count++;
+                    if (count == max) break;
+                    question = datatmp.Items[count].MediumSub;
 
                 }
 
-                count++;
-                question = datatmp.Items[count].MediumSub;
-                       
             }
 
-            alert(count);
+            else {
+
+                count++;
+                if (count > 1450) alert(count);
+                if (count != max) setForm();
+
+            }
+
+            
+            //alert(elements.length);
+            //alert(elements[0].name);
+            //alert(datatmp.Items[1451].LargeSub);
 
         }
+        
+        function submitItem() {
+            var element = document.getElementById("Answer_div");
+            var elements = element.elements;
+            //alert(elements.length);
 
+            //質問項目数繰り返し
+            for (var i = 0; i < elements.length; i++) {
+                //alert(i);
+                var jsonItem = {};
+                var questionName = elements[i].name;
+                //alert(questionName);
+                var hoge = questionName.split("_");
+                var numId = hoge[1];
+                if (elements[i].type == "text") {
+                    var questionValue = elements[i].value;
+                    if (questionValue == "") {
+                        questionValue = null;
+                    }
+                    if (hoge.length == 3) {
+                        var itemDetail = hoge[2];
+                        jsonItem["itemNum"] = submit_count + i;
+                        jsonItem["itemId"] = numId;
+                        jsonItem["itemValue"] = questionValue;
+                        jsonItem["itemDetail"] = itemDetail;
+                    } else {
+                        //alert("hoge.length2");
+                        jsonItem["itemNum"] = submit_count + i;
+                        jsonItem["itemId"] = numId;
+                        jsonItem["itemValue"] = questionValue;
+                        jsonItem["itemDetail"] = null;
+                    }
+                } else if (elements[i].type == "checkbox") {
+                    //i = i + 1;
+                    var flag = false;
+                    if (elements[i].checked) {
+                        flag = true;
+                        var questionValue = elements[questionName].value;
+                        jsonItem["itemNum"] = submit_count + i;
+                        jsonItem["itemId"] = numId;
+                        jsonItem["itemValue"] = questionValue;
+                        jsonItem["itemDetail"] = null;
+                        alert(JSON.stringify(jsonItem));
+                    }
+                    if (!flag) {
+                        var questionValue = null;
+                        jsonItem["itemNum"] = submit_count + i;
+                        jsonItem["itemId"] = numId;
+                        jsonItem["itemValue"] = questionValue;
+                        jsonItem["itemDetail"] = null;
+                    }
+                } else if (elements[i].type == "radio") {
+                    //i = i + 1;
+                    var nameLength = elements[questionName].length;
+                    var flag = false;
+                    for (var r = 0; r < nameLength; r++) {
+                        if (elements[questionName][r].checked) {
+                            //alert(elements[questionName][r].value);
+                            flag = true;
+                            var questionValue = elements[questionName][r].value;
+                            jsonItem["itemNum"] = submit_count + i;
+                            jsonItem["itemId"] = numId;
+                            jsonItem["itemValue"] = questionValue;
+                            jsonItem["itemDetail"] = null;
+                        }
+                        if (!flag) {
+                            var questionValue = null;
+                            jsonItem["itemNum"] = submit_count + i;
+                            jsonItem["itemId"] = numId;
+                            jsonItem["itemValue"] = questionValue;
+                            jsonItem["itemDetail"] = null;
+                        }
+                    }
+                }
+                submitItems = submitItems.concat(jsonItem);
+                //alert("submitItems:"+JSON.stringify(submitItems));
+                
+            }
+
+            if (submit_count == 1) {
+                for (var i = 0; i <= 1; i++) {
+                    patient_name.push(submitItems[i].itemValue);
+                    alert(submitItems[i].itemValue);
+                }
+
+                for (var j = 2; j <= 3; j++) {
+                    patient_name_kana.push(submitItems[j].itemValue);
+                }
+
+                patient_name = patient_name.join("");
+                patient_name_kana = patient_name_kana.join("");
+            }
+
+            submit_count += elements.length;
+            //alert(patient_name_kana);
+
+            //sendLambda();
+            //alert(JSON.stringify(submitItems));
+        }
+
+        function sendLambda() {
+            var JSONdata = {
+                Items: submitItems,
+                patientName: patient_name,
+                patientNameKana: patient_name_kana
+            };
+
+            alert(JSON.stringify(JSONdata.patientName));
+
+            var add_url = "https://2dn2p0hroa.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+            $.ajax({
+                type: 'post',
+                url: add_url,
+                data: JSON.stringify(JSONdata),
+                contentType: 'application/JSON',
+                dataType: 'JSON',
+                scriptCharset: "utf-8",
+                success: function (data) {
+                    alert("データを登録しました");
+                },
+                error: function (data) {
+                    alert("データの登録に失敗しました");
+                }
+            });
+        }
+                
         function updateProgress() {
             var val = Math.round((count / max * 100) * 10) / 10;
             document.getElementById("progress_bar").value = val;
@@ -202,12 +357,17 @@
 
         function onclickNextButton() {
             if (count < max) {
-                count++;
+                submitItem();
+                //count++;
                 setForm();
                 updateProgress();
+                element = document.getElementById("next_button");
+                element.value = "次の質問へ進む" + count;
+
             }
             else {
                 alert("これより先の質問はありません");
+                sendLambda();
             }
         }
 
@@ -234,6 +394,7 @@
                     //alert(JSON.stringify(data));
                     datatmp = data;
                     max = data.Items.length;
+                    //alert(max);
                     setForm();
                     updateProgress();
                 },
