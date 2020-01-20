@@ -482,7 +482,7 @@ h4 {
     float: right;
     position: relative;
     left: 100px;
-    top: -1734px;
+    /*top: -1734px;*/
 }
 
 #mainWrap {

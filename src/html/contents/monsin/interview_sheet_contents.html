@@ -192,8 +192,7 @@
             else {
 
                 count++;
-                if (count > 1450) alert(count);
-                if (count != max) setForm();
+                setForm();
 
             }
 
@@ -285,7 +284,7 @@
             if (submit_count == 1) {
                 for (var i = 0; i <= 1; i++) {
                     patient_name.push(submitItems[i].itemValue);
-                    alert(submitItems[i].itemValue);
+                    //alert(submitItems[i].itemValue);
                 }
 
                 for (var j = 2; j <= 3; j++) {
