@@ -53,7 +53,7 @@
 		//?を取り除くため、1から始める。複数のクエリ文字列に対応するため、&で区切る
 		hash  = url.slice(1).split('\=');
 		var patientId = hash[1] ;
-		alert(patientId);
+		//alert(patientId);
 		var largeSub = "";
 		//getpatientItems();
 
@@ -89,7 +89,7 @@
 						displayInfo(data);
 						tabs = document.getElementById('tabControl').getElementsByTagName('a');
 						forms = document.getElementById('tabBody').getElementsByTagName('div');
-						alert("tabs"+tabs.length);
+						//alert("tabs"+tabs.length);
 						for(var i=0; i<tabs.length; i++) {
 						tabs[i].onclick = changeTab;
 						}
