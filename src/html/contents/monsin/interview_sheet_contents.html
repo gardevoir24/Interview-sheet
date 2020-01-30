@@ -51,8 +51,8 @@
             answer_target = document.getElementById("Answer_div");
             empty_flag = false;
             disabled_char_flag = false;
-            //admin_url = "https:/y4dda4qzjg.execute-api.ap-northeast-1.amazonaws.com/stage/resource"; //Interview-items(五十嵐さんが登録した方の問診票)
-            admin_url = "https:/9igrdhfqfb.execute-api.ap-northeast-1.amazonaws.com/stage/resource";   //interview-items-2017
+            admin_url = "https:/y4dda4qzjg.execute-api.ap-northeast-1.amazonaws.com/stage/resource"; //Interview-items(五十嵐さんが登録した方の問診票)
+            //admin_url = "https:/9igrdhfqfb.execute-api.ap-northeast-1.amazonaws.com/stage/resource";   //interview-items-2017
             getItems();
             window.onerror = function (msg, url, linenumber) {
                 alert('Error message: ' + msg + '\nURL: ' + url + '\nLine Number: ' + linenumber);
@@ -190,6 +190,7 @@
 
             else {
 
+                submitItem();
                 count++;
                 setForm();
 
@@ -331,26 +332,51 @@
 
         //要修正
         function onclickBackButton() {
-            var question = datatmp.Items[count].MediumSub;
-            var backq = question;
-            if (count != 0) {
+            var question;
+            var backq;
+
+          　element = document.getElementById("next_button");
+            element.value = "次の質問へ進む";
+
+            if (count != 2) {
+
+                //count--;
+                backq = question = datatmp.Items[count].MediumSub;
+
                 while (backq == question) {
                     count--;
                     question = datatmp.Items[count].MediumSub;
+                    if (count == 0) break;
+                    alert("1\nbq:" + backq + "\nq :" + question);
                 }
-                //if (count != 0) count++;
+
                 count--;
-                alert(count);
+                backq = question = datatmp.Items[count].MediumSub;
+
+                while (backq == question) {
+                    count--;
+                    question = datatmp.Items[count].MediumSub;
+                    if (count == 0) break;
+                    alert("2\nbq:" + backq + "\nq :" + question);
+                }
+
+                if (count != 0) count++;
+                //count--;
+                //alert(count);
                 setForm();
                 updateProgress();
+
             }
             else {
+
                 alert("これより前の質問はありません");
+
             }
         }
 
         function onclickNextButton() {
             if (count < max) {
+                //alert(count);
                 submitItem();
                 //count++;
                 setForm();
@@ -360,7 +386,7 @@
 
             }
             else {
-                alert("これより先の質問はありません");
+                alert("データの登録を行います");
                 sendLambda();
             }
         }
