@@ -38,6 +38,7 @@
         var submit_count = 1;
         var datatmp;
         var max;
+        var q_num = 0;
 
         var jsonItem = {};
         var submitItems = [];
@@ -76,7 +77,7 @@
             var elements = element.elements;
 
             //alert(question);
-
+          
             category_target.innerHTML = "<p><strong>カテゴリ</strong>：" + category + "</p>";
 
             if (question != "　" && question != null)
@@ -180,22 +181,29 @@
 
                     }
 
+                    //else alert("check2");
+
                     count++;
                     if (count == max) break;
                     question = datatmp.Items[count].MediumSub;
 
                 }
 
+            q_num++;
+            answer_target.innerHTML += "count  ：" + count + "<br>question：" + q_num;
+
             }
 
             else {
 
+                //alert("check");
                 submitItem();
                 count++;
+
                 setForm();
 
             }
-
+                        
         }
         
         function submitItem() {
@@ -330,7 +338,6 @@
             document.getElementById("progress_text").innerHTML = "現在の回答状況：" + val + "%";
         }
 
-        //要修正
         function onclickBackButton() {
             var question;
             var backq;
@@ -341,28 +348,44 @@
             if (count != 2) {
 
                 //count--;
-                backq = question = datatmp.Items[count].MediumSub;
+                backq = question = datatmp.Items[count-1].MediumSub;
 
+                //1つ前の質問に戻す
                 while (backq == question) {
                     count--;
                     question = datatmp.Items[count].MediumSub;
-                    if (count == 0) break;
-                    alert("1\nbq:" + backq + "\nq :" + question);
+                    //alert("<1つ前の質問に戻す>\nbq:" + backq + "\nq :" + question + "\ncount：" + count);
                 }
 
-                count--;
+                //count--;
                 backq = question = datatmp.Items[count].MediumSub;
 
+                //2つ前の質問に戻す
                 while (backq == question) {
-                    count--;
+                    count--;                                        
+                    if (count < 0) break;
                     question = datatmp.Items[count].MediumSub;
-                    if (count == 0) break;
-                    alert("2\nbq:" + backq + "\nq :" + question);
+                    //alert("<2つ前の質問に戻す>\nbq:" + backq + "\nq :" + question + "\ncount：" + count);
                 }
 
-                if (count != 0) count++;
+                if (backq == "　" || backq == null) {
+
+                    backq = question;
+
+                    while (backq == question) {
+                        //alert("check");
+                        count--;
+                        if (count < 0) break;
+                        question = datatmp.Items[count].MediumSub;
+                        //alert("<3つ前の質問に戻す>\nbq:" + backq + "\nq :" + question + "\ncount：" + count);
+                    }
+
+                }
+
+                count++;    //1つ前の質問(先頭)に戻す
                 //count--;
                 //alert(count);
+                q_num -= 2;
                 setForm();
                 updateProgress();
 
