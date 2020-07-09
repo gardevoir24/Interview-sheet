@@ -1,0 +1,532 @@
+﻿﻿﻿
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+    <title>中国伝統医学　問診票</title>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</head>
+<body>
+    <div id="wrap">
+        <div id="header">
+            <h2>問診票</h2><br />
+        </div><!-- /header -->
+        <div id="inner">
+            <input id="back_button" type="button" value="前の質問へ戻る" class="square_btnB" onclick="onclickBackButton();">
+            <input id="next_button" type="button" value="次の質問へ進む" class="square_btnN" onclick="onclickNextButton();"><br>
+            <div id="Category_div"></div>
+            <div id="Question_div"></div>
+            <form id="Answer_div"></form>
+            <div id="Progress">
+                <progress id="progress_bar" value="0" max="100">0%</progress>
+                <div id="progress_text"></div>
+            </div>
+            <input id="save_button" type="button" value="回答をやめる" class="square_btnS" onclick="onclickSaveButton();">
+        </div><!-- /inner -->
+    </div><!-- /wrap -->
+
+    <script type="text/javascript">
+        /*ページ移動せずに内容を変更するタブ機能の作り方*/
+
+        var count = 0;
+        var submit_count = 1;
+        var datatmp;
+        var max;
+        var q_num = 0;
+
+        var jsonItem = {};
+        var submitItems = [];
+        var patient_name = [];
+        var patient_name_kana = [];
+
+        (function () {
+            //alert("called");
+            category_target = document.getElementById("Category_div");
+            question_target = document.getElementById("Question_div");
+            answer_target = document.getElementById("Answer_div");
+            empty_flag = false;
+            disabled_char_flag = false;
+            //admin_url = "https:/y4dda4qzjg.execute-api.ap-northeast-1.amazonaws.com/stage/resource"; //Interview-items(五十嵐さんが登録した方の問診票)
+            admin_url = "https:/9igrdhfqfb.execute-api.ap-northeast-1.amazonaws.com/stage/resource";   //interview-items-2017
+            getItems();
+            window.onerror = function (msg, url, linenumber) {
+                alert('Error message: ' + msg + '\nURL: ' + url + '\nLine Number: ' + linenumber);
+                return true;
+            }
+        }());
+
+        function setForm() {
+            //var form_element = document.createElement("p");
+            //form_element.id = "tabpage" + datatmp.Items[count].LargeNum;
+            //alert("form_element.id="+form_element.id);
+            var id = datatmp.Items[count].id;
+            var category = datatmp.Items[count].LargeSub;
+            var question = datatmp.Items[count].MediumSub;
+            var answer = datatmp.Items[count].SmallSub;
+            var form1 = datatmp.Items[count].Form1;
+
+            var backq = question;　//現在の質問
+
+            var element = document.getElementById("Answer_div");
+            var elements = element.elements;
+
+            //alert(question);
+          
+            category_target.innerHTML = "<p><strong>カテゴリ</strong>：" + category + "</p>";
+
+            if (question != "　" && question != null)
+                question_target.innerHTML = "<p><strong>質問　　</strong>：" + question + "</p>";
+            else
+                question_target.innerHTML = "<p><strong>質問　　</strong>：以下の中から当てはまるものをすべて選択(記入)してください。</p>";
+
+            answer_target.innerHTML = "<p><strong>回答　　</strong>："
+
+            if (((question != "　") || (answer != "　")) && ((question != null) || (answer != null))) {
+
+                while (backq == question) {
+                    
+                    id = datatmp.Items[count].id;
+                    category = datatmp.Items[count].LargeSub;
+                    answer = datatmp.Items[count].SmallSub;
+                    form1 = datatmp.Items[count].Form1;
+                    //alert(answer);
+
+                    if (answer == "　" || answer == null) {
+
+                        if (datatmp.Items[count].ParentId != null )
+                            checkParent();
+
+                    }
+
+                    else{
+                                            
+                        if (question != answer) {
+
+                            if (form1 != "◎") {
+                                var qForm1 = "<label for=\"" + id + "\"><input type=\"checkbox\" name=\"questionId_" + id + "\" value=\"" + answer + "\" id=\"" + id + "\"   />  " + answer + "</label>";
+                                answer_target.innerHTML += qForm1 + "<br>";
+                                //category_target.appendChild(form_element);
+                                //alert(backq + "\n" + question + "\n" + qForm1);
+
+
+                            } else {
+                                switch (true) {
+                                    case /^氏名$/.test(answer):
+                                        var qForm2 = "<p>" + answer + "（例:山田　太郎)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "\"> <input type=\"text\" size=\"20\" name=\"questionId_" + id + "\">";
+                                        break;
+                                    case /^氏名フリガナ$/.test(answer):
+                                        var qForm2 = "<p>" + answer + "（例:ヤマダ　タロウ)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_LNK\"> <input type=\"text\" size=\"20\" name=\"questionId_" + id + "_FNK\">";
+                                        break;
+                                    case /生年月日/.test(answer):
+                                        var qForm2 = "<p>" + answer + "（例:2000年1月1日)</p><input type=\"number\" size=\"4\" name=\"questionId_" + id + "\">年<input type=\"number\" size=\"2\" name=\"questionId_" + id + "\">月<input type=\"number\" size=\"2\" name=\"questionId_" + id + "\">日";
+                                        break;
+                                    case /体重/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> kg";
+                                        break;
+                                    case /身長/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> cm";
+                                        break;
+                                    case /年令|才/.test(answer):
+                                        var qForm2 = "<p>" + answer + "（例:17歳)</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
+                                        break;
+                                    case /性別/.test(answer):
+                                        var qForm2 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
+                                        break;                                    
+                                    case /住所/.test(answer):
+                                        var qForm2 = "<p>郵便番号（例:123-1234）</p><input type=\"text\" size=\"10\" name=\"questionId_" + id + "\"><br><p>住所1(例:東京...)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "\"><br><p>住所2(例:マンション名等)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "\">";
+                                        break;
+                                    case /何ml/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> ml";
+                                        break;
+                                    case /何合/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 合";
+                                        break;
+                                    case /何本/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 本";
+                                        break;
+                                    case /回数|何回/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 回";
+                                        break;
+                                    case /裸眼/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> ";
+                                        break;
+                                    case /日数|何日/.test(answer):
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 日";
+                                        break;
+                                    default:
+                                        var qForm2 = "<p>" + answer + "</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "\"><br>";
+                                }
+                                //id= questionId
+                                //alert("qFrom2:"+qForm2);
+                                answer_target.innerHTML += qForm2 + "</p>";
+
+                            }
+
+                        } else {
+                            //id= questionId
+                            switch (true) {
+                                case /^氏名$/.test(answer):
+                                    var qForm3 = "<p>" + answer + "（例:山田　太郎)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_LN\"> <input type=\"text\" size=\"20\" name=\"questionId_" + id + "_FN\">";
+                                    break;
+                                case /^氏名フリガナ$/.test(answer):
+                                    var qForm3 = "<p>" + answer + "（例:ヤマダ　タロウ)</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_LNK\"><input type=\"text\" size=\"20\" name=\"questionId_" + id + "_FNK\">";
+                                    break;
+                                case /生年月日/.test(answer):
+                                    var qForm3 = "<p>" + answer + "（例:2000年1月1日)</p><input type=\"number\" size=\"4\" name=\"questionId_" + id + "_year\">年<input type=\"number\" size=\"2\" name=\"questionId_" + id + "_mouth\">月<input type=\"number\" size=\"2\" name=\"questionId_" + id + "_day\">日";
+                                    break;
+                                case /体重/.test(answer):
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> kg";
+                                    break;
+                                case /身長/.test(answer):
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> cm";
+                                    break;
+                                case /年令|才/.test(answer):
+                                    var qForm3 = "<p>" + answer + "（例:17歳)</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
+                                    break;
+                                case /性別/.test(answer):
+                                    var qForm3 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
+                                    break;                                
+                                case /住所/.test(answer):
+                                    var qForm3 = "<p>郵便番号（例:123-1234）</p><input type=\"text\" size=\"10\" name=\"questionId_" + id + "_posttal\"><br><p>住所1(例:東京...)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "_Street1\"><br><p>住所2(例:マンション名等)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "_Street2\">";
+                                    break;
+                                case /何ml/.test(answer):
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> ml";
+                                    break;
+                                case /何合/.test(answer):
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 合";
+                                    break;
+                                case /何本/.test(answer):
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 本";
+                                    break;
+                                case /回数|何回/.test(answer):
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 回";
+                                    break;
+                                case /裸眼/.test(answer):
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> ";
+                                    break;
+                                case /日数|何日/.test(answer):
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 日";
+                                    break;
+                                default:
+                                    var qForm3 = "<p>" + answer + "</p><input type=\"text\" size=\"20\" name=\"questionId_" + id + "\"><br>";
+                                //count++;
+                            }
+                            //alert("qForm3:"+qForm3);
+                            answer_target.innerHTML += qForm3 + "</p>";
+                        }
+
+
+                    }
+
+                    //else alert("check2");
+
+                    count++;
+                    if (count == max) break;
+                    question = datatmp.Items[count].MediumSub;
+
+                }
+
+            q_num++;
+            //answer_target.innerHTML += "count  ：" + count + "<br>question：" + q_num;
+
+            }
+
+            else {
+
+                //alert("check");
+                submitItem();
+                count++;
+
+                setForm();
+
+            }
+                        
+        }
+        
+        function submitItem() {
+            var element = document.getElementById("Answer_div");
+            var elements = element.elements;
+            //alert(elements.length);
+
+            //質問項目数繰り返し
+            for (var i = 0; i < elements.length; i++) {
+                //alert(i);
+                var jsonItem = {};
+                var questionName = elements[i].name;
+                //alert(questionName);
+                var hoge = questionName.split("_");
+                var numId = hoge[1];
+                if (elements[i].type == "text" || elements[i].type == "number") {
+                    var questionValue = elements[i].value;
+                    if (questionValue == "") {
+                        questionValue = null;
+                    }
+                    if (hoge.length == 3) {
+                        var itemDetail = hoge[2];
+                        jsonItem["itemNum"] = submit_count + i;
+                        jsonItem["itemId"] = numId;
+                        jsonItem["itemValue"] = questionValue;
+                        jsonItem["itemDetail"] = itemDetail;
+                    } else {
+                        //alert("hoge.length2");
+                        jsonItem["itemNum"] = submit_count + i;
+                        jsonItem["itemId"] = numId;
+                        jsonItem["itemValue"] = questionValue;
+                        jsonItem["itemDetail"] = null;
+                    }
+                } else if (elements[i].type == "checkbox") {
+                    //i = i + 1;
+                    var flag = false;
+                    if (elements[i].checked) {
+                        flag = true;
+                        var questionValue = elements[questionName].value;
+                        jsonItem["itemNum"] = submit_count + i;
+                        jsonItem["itemId"] = numId;
+                        jsonItem["itemValue"] = questionValue;
+                        jsonItem["itemDetail"] = null;
+                        //alert(JSON.stringify(jsonItem));
+                    }
+                    if (!flag) {
+                        var questionValue = null;
+                        jsonItem["itemNum"] = submit_count + i;
+                        jsonItem["itemId"] = numId;
+                        jsonItem["itemValue"] = questionValue;
+                        jsonItem["itemDetail"] = null;
+                    }
+                } else if (elements[i].type == "radio") {
+                    //i = i + 1;
+                    var nameLength = elements[questionName].length;
+                    var flag = false;
+                    for (var r = 0; r < nameLength; r++) {
+                        if (elements[questionName][r].checked) {
+                            //alert(elements[questionName][r].value);
+                            flag = true;
+                            var questionValue = elements[questionName][r].value;
+                            jsonItem["itemNum"] = submit_count + i;
+                            jsonItem["itemId"] = numId;
+                            jsonItem["itemValue"] = questionValue;
+                            jsonItem["itemDetail"] = null;
+                        }
+                        if (!flag) {
+                            var questionValue = null;
+                            jsonItem["itemNum"] = submit_count + i;
+                            jsonItem["itemId"] = numId;
+                            jsonItem["itemValue"] = questionValue;
+                            jsonItem["itemDetail"] = null;
+                        }
+                    }
+                }
+                submitItems = submitItems.concat(jsonItem);
+                //if (submitItems[submit_count-1].itemValue != null) alert(submit_count);
+                //alert("submitItems:"+JSON.stringify(submitItems));
+                
+            }
+
+            if (submit_count == 1) {
+                for (var i = 0; i <= 1; i++) {
+                    patient_name.push(submitItems[i].itemValue);
+                    //alert(submitItems[i].itemValue);
+                }
+
+                for (var j = 2; j <= 3; j++) {
+                    patient_name_kana.push(submitItems[j].itemValue);
+                }
+
+                patient_name = patient_name.join("");
+                patient_name_kana = patient_name_kana.join("");
+            }
+                        
+            submit_count += elements.length;
+            //alert(patient_name_kana);
+
+            //sendLambda();
+            //alert(JSON.stringify(submitItems));
+        }
+
+        function sendLambda() {
+            var JSONdata = {
+                Items: submitItems,
+                patientName: patient_name,
+                patientNameKana: patient_name_kana
+            };
+
+            //alert(JSON.stringify(JSONdata.patientName));
+
+            var add_url = "https://2dn2p0hroa.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+            $.ajax({
+                type: 'post',
+                url: add_url,
+                data: JSON.stringify(JSONdata),
+                contentType: 'application/JSON',
+                dataType: 'JSON',
+                scriptCharset: "utf-8",
+                success: function (data) {
+                    alert("データを登録しました");
+                },
+                error: function (data) {
+                    alert("データの登録に失敗しました");
+                }
+            });
+        }
+
+        function checkParent() {
+            var p_id_str = datatmp.Items[count].ParentId;
+            var p_id = p_id_str.split(" ");
+            alert(count + "\n" + p_id);
+            alert(submitItems.length);
+
+            var i = 0;
+
+            while (p_id[i] != null) {
+
+                if (submitItems[221].itemValue == null) {
+                    alert("check");
+                    count += 11;
+                    onclickNextButton();
+                }
+
+                i++;
+
+            }
+
+        }
+                
+        function updateProgress() {
+            var val = Math.round((count / max * 100) * 10) / 10;
+            document.getElementById("progress_bar").value = val;
+            document.getElementById("progress_bar").innerText = val + "%";
+            document.getElementById("progress_text").innerHTML = "現在の回答状況：" + val + "%";
+        }
+
+        function onclickBackButton() {
+            var question;
+            var backq;
+
+          　element = document.getElementById("next_button");
+            element.value = "次の質問へ進む";
+
+            if (count != 2) {
+
+                //count--;
+                backq = question = datatmp.Items[count-1].MediumSub;
+
+                //1つ前の質問に戻す
+                while (backq == question) {
+                    count--;
+                    question = datatmp.Items[count].MediumSub;
+                    //alert("<1つ前の質問に戻す>\nbq:" + backq + "\nq :" + question + "\ncount：" + count);
+                }
+
+                //count--;
+                backq = question = datatmp.Items[count].MediumSub;
+
+                //2つ前の質問に戻す
+                while (backq == question) {
+                    count--;                                        
+                    if (count < 0) break;
+                    question = datatmp.Items[count].MediumSub;
+                    //alert("<2つ前の質問に戻す>\nbq:" + backq + "\nq :" + question + "\ncount：" + count);
+                }
+
+                if (backq == "　" || backq == null) {
+
+                    backq = question;
+
+                    while (backq == question) {
+                        //alert("check");
+                        count--;
+                        if (count < 0) break;
+                        question = datatmp.Items[count].MediumSub;
+                        //alert("<3つ前の質問に戻す>\nbq:" + backq + "\nq :" + question + "\ncount：" + count);
+                    }
+
+                }
+
+                count++;    //1つ前の質問(先頭)に戻す
+                //count--;
+                //alert(count);
+                q_num -= 2;
+                setForm();
+                updateProgress();
+
+            }
+            else {
+
+                alert("これより前の質問はありません");
+
+            }
+        }
+
+        function onclickNextButton() {
+            if (count < max) {
+                //alert(count);
+                submitItem();
+                //count++;
+                setForm();
+                updateProgress();                
+                //element = document.getElementById("next_button");
+                //element.value = "次の質問へ進む" + count;
+
+            }
+            else {
+                alert("データの登録を行います");
+                sendLambda();
+            }
+        }
+
+        function onclickSaveButton() {
+            submitItem();
+            alert("データの登録を行います");
+            sendLambda();
+        }
+
+        function getItems() {
+            var jsonData = {
+                q: "reqQ"
+            };
+            $.ajax({
+                type: 'POST',
+                url: admin_url,
+                data: JSON.stringify(jsonData),
+                contentType: 'application/json',
+                dataType: 'JSON',
+                scriptCharset: 'utf-8',
+                success: function (data) {
+                    //確認用
+                    var str = JSON.stringify(data);
+                    jsonParsed = JSON.parse(str);
+                    //alert(JSON.stringify(data));
+                    data.Items.sort(function (a, b) {
+                        return a.id - b.id;
+                    });
+
+                    //alert(JSON.stringify(data));
+                    datatmp = data;
+                    max = data.Items.length;
+                    //alert(max);
+                    setForm();
+                    updateProgress();
+                },
+                error: function (data) {
+                    alert("データの取得に失敗しました");
+                }
+            });
+        }
+
+        function custom_compare(a, b) {
+            return a.id - b.id;
+        }
+
+    </script>
+
+</body>
+
+
+</html>
