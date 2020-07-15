@@ -98,7 +98,6 @@
                     form1 = datatmp.Items[count].Form1;
                     //alert(answer);
 
-<<<<<<< HEAD
                     if (answer == "　" || answer == null) {
 
                         if (datatmp.Items[count].ParentId != null )
@@ -108,10 +107,6 @@
 
                     else{
                                             
-=======
-                    if (answer != "　" && answer != null) {
-
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
                         if (question != answer) {
 
                             if (form1 != "◎") {
@@ -132,30 +127,18 @@
                                     case /生年月日/.test(answer):
                                         var qForm2 = "<p>" + answer + "（例:2000年1月1日)</p><input type=\"number\" size=\"4\" name=\"questionId_" + id + "\">年<input type=\"number\" size=\"2\" name=\"questionId_" + id + "\">月<input type=\"number\" size=\"2\" name=\"questionId_" + id + "\">日";
                                         break;
-<<<<<<< HEAD
-=======
-                                    case /年令|才/.test(answer):
-                                        var qForm2 = "<p>" + answer + "（例:17歳)</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
-                                        break;
-                                    case /性別/.test(answer):
-                                        var qForm2 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
-                                        break;
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
                                     case /体重/.test(answer):
                                         var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> kg";
                                         break;
                                     case /身長/.test(answer):
                                         var qForm2 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> cm";
                                         break;
-<<<<<<< HEAD
                                     case /年令|才/.test(answer):
                                         var qForm2 = "<p>" + answer + "（例:17歳)</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
                                         break;
                                     case /性別/.test(answer):
                                         var qForm2 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
                                         break;                                    
-=======
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
                                     case /住所/.test(answer):
                                         var qForm2 = "<p>郵便番号（例:123-1234）</p><input type=\"text\" size=\"10\" name=\"questionId_" + id + "\"><br><p>住所1(例:東京...)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "\"><br><p>住所2(例:マンション名等)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "\">";
                                         break;
@@ -198,30 +181,18 @@
                                 case /生年月日/.test(answer):
                                     var qForm3 = "<p>" + answer + "（例:2000年1月1日)</p><input type=\"number\" size=\"4\" name=\"questionId_" + id + "_year\">年<input type=\"number\" size=\"2\" name=\"questionId_" + id + "_mouth\">月<input type=\"number\" size=\"2\" name=\"questionId_" + id + "_day\">日";
                                     break;
-<<<<<<< HEAD
-=======
-                                case /年令|才/.test(answer):
-                                    var qForm3 = "<p>" + answer + "（例:17歳)</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
-                                    break;
-                                case /性別/.test(answer):
-                                    var qForm3 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
-                                    break;
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
                                 case /体重/.test(answer):
                                     var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> kg";
                                     break;
                                 case /身長/.test(answer):
                                     var qForm3 = "<p>" + answer + "</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> cm";
                                     break;
-<<<<<<< HEAD
                                 case /年令|才/.test(answer):
                                     var qForm3 = "<p>" + answer + "（例:17歳)</p><input type=\"number\" size=\"3\" name=\"questionId_" + id + "\"> 歳";
                                     break;
                                 case /性別/.test(answer):
                                     var qForm3 = "<p>" + answer + "<input type=\"radio\" name=\"questionId_" + id + "\" value=\"man\">男<input type=\"radio\" name=\"questionId_" + id + "\" value=\"woman\">女</p>";
                                     break;                                
-=======
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
                                 case /住所/.test(answer):
                                     var qForm3 = "<p>郵便番号（例:123-1234）</p><input type=\"text\" size=\"10\" name=\"questionId_" + id + "_posttal\"><br><p>住所1(例:東京...)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "_Street1\"><br><p>住所2(例:マンション名等)</p><input type=\"text\" size=\"50\" name=\"questionId_" + id + "_Street2\">";
                                     break;
@@ -263,11 +234,7 @@
                 }
 
             q_num++;
-<<<<<<< HEAD
             //answer_target.innerHTML += "count  ：" + count + "<br>question：" + q_num;
-=======
-            answer_target.innerHTML += "count  ：" + count + "<br>question：" + q_num;
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
 
             }
 
@@ -296,11 +263,7 @@
                 //alert(questionName);
                 var hoge = questionName.split("_");
                 var numId = hoge[1];
-<<<<<<< HEAD
                 if (elements[i].type == "text" || elements[i].type == "number") {
-=======
-                if (elements[i].type == "text") {
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
                     var questionValue = elements[i].value;
                     if (questionValue == "") {
                         questionValue = null;
@@ -361,10 +324,7 @@
                     }
                 }
                 submitItems = submitItems.concat(jsonItem);
-<<<<<<< HEAD
                 //if (submitItems[submit_count-1].itemValue != null) alert(submit_count);
-=======
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
                 //alert("submitItems:"+JSON.stringify(submitItems));
                 
             }
@@ -382,11 +342,7 @@
                 patient_name = patient_name.join("");
                 patient_name_kana = patient_name_kana.join("");
             }
-<<<<<<< HEAD
                         
-=======
-
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
             submit_count += elements.length;
             //alert(patient_name_kana);
 
@@ -419,7 +375,6 @@
                 }
             });
         }
-<<<<<<< HEAD
 
         function checkParent() {
             var p_id_str = datatmp.Items[count].ParentId;
@@ -442,8 +397,6 @@
             }
 
         }
-=======
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
                 
         function updateProgress() {
             var val = Math.round((count / max * 100) * 10) / 10;
@@ -517,11 +470,7 @@
                 submitItem();
                 //count++;
                 setForm();
-<<<<<<< HEAD
                 updateProgress();                
-=======
-                updateProgress();
->>>>>>> 37bc790eb8e05728dce3077aa4a7a09acc41c720
                 //element = document.getElementById("next_button");
                 //element.value = "次の質問へ進む" + count;
 
