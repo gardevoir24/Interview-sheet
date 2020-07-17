@@ -233,8 +233,9 @@
 
                 }
 
-            q_num++;
-            //answer_target.innerHTML += "count  ：" + count + "<br>question：" + q_num;
+                q_num++;
+                answer_target.innerHTML += "count    ：" + count + "<br>question：" + q_num + "<br>";
+                answer_target.innerHTML += "s_Items  ：" + submitItems.length + "<br>";
 
             }
 
@@ -417,7 +418,7 @@
                 //count--;
                 backq = question = datatmp.Items[count-1].MediumSub;
 
-                //1つ前の質問に戻す
+                /* 1つ前の質問に戻す */
                 while (backq == question) {
                     count--;
                     question = datatmp.Items[count].MediumSub;
@@ -427,11 +428,19 @@
                 //count--;
                 backq = question = datatmp.Items[count].MediumSub;
 
-                //2つ前の質問に戻す
+                /* 2つ前の質問に戻す */
                 while (backq == question) {
                     count--;                                        
                     if (count < 0) break;
                     question = datatmp.Items[count].MediumSub;
+
+                    /* 保存用配列を戻った分だけ削除 */
+                    if (count == 0) submitItems.splice(0, 4);
+                    else if (count == 1) submitItems.splice(4, 3);
+                    else if (count == 8) submitItems.splice(8, 2);
+                    else if (count == 9) submitItems.splice(15, 3);
+                    else submitItems.pop();
+
                     //alert("<2つ前の質問に戻す>\nbq:" + backq + "\nq :" + question + "\ncount：" + count);
                 }
 
@@ -444,6 +453,7 @@
                         count--;
                         if (count < 0) break;
                         question = datatmp.Items[count].MediumSub;
+                        
                         //alert("<3つ前の質問に戻す>\nbq:" + backq + "\nq :" + question + "\ncount：" + count);
                     }
 
@@ -473,7 +483,6 @@
                 updateProgress();                
                 //element = document.getElementById("next_button");
                 //element.value = "次の質問へ進む" + count;
-
             }
             else {
                 alert("データの登録を行います");
@@ -499,7 +508,7 @@
                 dataType: 'JSON',
                 scriptCharset: 'utf-8',
                 success: function (data) {
-                    //確認用
+                    /* 確認用 */
                     var str = JSON.stringify(data);
                     jsonParsed = JSON.parse(str);
                     //alert(JSON.stringify(data));
