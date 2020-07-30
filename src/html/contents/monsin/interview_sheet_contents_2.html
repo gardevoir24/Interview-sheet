@@ -53,8 +53,8 @@
             answer_target = document.getElementById("Answer_div");
             empty_flag = false;
             disabled_char_flag = false;
-            //admin_url = "https:/y4dda4qzjg.execute-api.ap-northeast-1.amazonaws.com/stage/resource"; //Interview-items(五十嵐さんが登録した方の問診票)
-            admin_url = "https:/9igrdhfqfb.execute-api.ap-northeast-1.amazonaws.com/stage/resource";   //interview-items-2017
+            //admin_url = "https:/y4dda4qzjg.execute-api.ap-northeast-1.amazonaws.com/stage/resource"; /* Interview-items(五十嵐さんが登録した方の問診票) */
+            admin_url = "https:/9igrdhfqfb.execute-api.ap-northeast-1.amazonaws.com/stage/resource";   /* interview-items-2017 */
             getItems();
             window.onerror = function (msg, url, linenumber) {
                 alert('Error message: ' + msg + '\nURL: ' + url + '\nLine Number: ' + linenumber);
@@ -72,7 +72,7 @@
             var answer = datatmp.Items[count].SmallSub;
             var form1 = datatmp.Items[count].Form1;
 
-            var backq = question;　//現在の質問
+            var backq = question;　/* 現在の質問 */
 
             var element = document.getElementById("Answer_div");
             var elements = element.elements;
@@ -100,8 +100,12 @@
 
                     if (answer == "　" || answer == null) {
 
-                        if (datatmp.Items[count].ParentId != null )
+                        if (datatmp.Items[count].ParentId != null) {
+
+                            //alert("parent check");
                             checkParent();
+
+                        }
 
                     }
 
@@ -459,7 +463,7 @@
 
                 }
 
-                count++;    //1つ前の質問(先頭)に戻す
+                count++;    /* 1つ前の質問(先頭)に戻す */
                 //count--;
                 //alert(count);
                 q_num -= 2;
@@ -491,9 +495,14 @@
         }
 
         function onclickSaveButton() {
-            submitItem();
-            alert("データの登録を行います");
-            sendLambda();
+            var res = confirm("回答の途中ですが，保存を行いますか？");
+            if (res == true) {
+                submitItem();
+                sendLambda();
+            }
+            else {
+                alert("回答画面に戻ります");
+            }
         }
 
         function getItems() {
