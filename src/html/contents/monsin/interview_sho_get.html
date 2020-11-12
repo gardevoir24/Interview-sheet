@@ -1,0 +1,166 @@
+﻿﻿﻿
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" />
+    <meta http-equiv="imagetoolbar" content="no" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
+
+    <title>証候補抽出</title>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+</head>
+<body>
+    <div id="wrap">
+        <div id="header">
+            <h2>問診票</h2><br />
+        </div><!-- /header -->
+        <div id="inner">
+            <div id="Category_div"></div>
+            <div id="Question_div"></div>
+            <form id="Answer_div"></form>            
+        </div><!-- /inner -->
+    </div><!-- /wrap -->
+
+    <script type="text/javascript">
+        /*ページ移動せずに内容を変更するタブ機能の作り方*/
+
+        var count = 0;
+        var submit_count = 1;
+        var datatmp;
+        var datatmp2;
+        var max;
+        var q_num = 0;
+
+        var jsonItem = {};
+        var submitItems = [];
+        var patient_name = [];
+        var patient_name_kana = [];
+
+        (function () {
+            //alert("called");
+            category_target = document.getElementById("Category_div");
+            question_target = document.getElementById("Question_div");
+            answer_target = document.getElementById("Answer_div");
+            empty_flag = false;
+            disabled_char_flag = false;
+            admin_url = "https://fm301jazj0.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+            patient_admin_url = "https://kw8372oke9.execute-api.ap-northeast-1.amazonaws.com/stage/resource";
+            getItems();
+            window.onerror = function (msg, url, linenumber) {
+                alert('Error message: ' + msg + '\nURL: ' + url + '\nLine Number: ' + linenumber);
+                return true;
+            }
+        }());
+
+        function compareData() {
+
+            var t_count = 0;
+
+            for (var i = 0; i < max; i++) {
+                //alert(datatmp.Items[i].interview);
+                var symptom_str = String(datatmp.Items[i].interview);
+                var symptom = symptom_str.split(",");
+                //alert(symptom[0]);
+                //alert(symptom.length);
+                answer_target.innerHTML += datatmp.Items[i].name + "：";
+
+                for (var j = 0; j < symptom.length; j++) {
+                    var num_s = symptom[j].split(" ");
+                    num = Number(num_s[0]);
+                    if (num < 1200) {
+                        //alert(datatmp2.Item.Item[num].itemValue);
+
+                        if (datatmp2.Item.Item[num].itemValue != null) {
+                            //alert("hit");
+                            t_count++;
+
+                        }
+                    }
+
+                }
+                                
+                var trueper = (t_count / symptom.length * 100).toFixed(2);
+                answer_target.innerHTML += trueper + "%<br>";
+                t_count = 0;
+
+            }
+
+        }
+
+       function getItems() {
+            var jsonData = {
+                q: "reqQ"
+            };
+            $.ajax({
+                type: 'POST',
+                url: admin_url,
+                data: JSON.stringify(jsonData),
+                contentType: 'application/json',
+                dataType: 'JSON',
+                scriptCharset: 'utf-8',
+                success: function (data) {
+                    //確認用
+                    var str = JSON.stringify(data);
+                    jsonParsed = JSON.parse(str);
+                    alert(JSON.stringify(data));
+                    data.Items.sort(function (a, b) {
+                        return a.id - b.id;
+                    });
+
+                    //alert(JSON.stringify(data));
+                    datatmp = data;
+                    max = data.Items.length;
+                    //answer_target.innerHTML += JSON.stringify(data);
+                    //alert(max);
+                },
+                error: function (data) {
+                    alert("データの取得に失敗しました");
+                }
+            });
+
+            var jsonData2 = {
+                patientId: "ae6285247bbc4c3e9deca68770431b11"
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: patient_admin_url,
+                data: JSON.stringify(jsonData2),
+                contentType: 'application/json',
+                dataType: 'JSON',
+                scriptCharset: 'utf-8',
+                success: function (data) {
+                    //確認用
+                    var str = JSON.stringify(data);
+                    jsonParsed = JSON.parse(str);
+                    //alert(JSON.stringify(data));
+                    
+
+                    //alert(JSON.stringify(data));
+                    datatmp2 = data;
+                    //answer_target.innerHTML += JSON.stringify(data);
+                    //max = data.Items.length;
+                    //alert(max);
+                    compareData();
+                },
+                error: function (data) {
+                    alert("データの取得に失敗しました2");
+                }
+            });
+
+        }
+
+        function custom_compare(a, b) {
+            return a.id - b.id;
+        }
+
+    </script>
+
+</body>
+
+
+</html>

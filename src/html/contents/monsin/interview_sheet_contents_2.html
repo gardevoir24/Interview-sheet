@@ -21,6 +21,7 @@
         <div id="inner">
             <input id="back_button" type="button" value="前の質問へ戻る" class="square_btnB" onclick="onclickBackButton();">
             <input id="next_button" type="button" value="次の質問へ進む" class="square_btnN" onclick="onclickNextButton();"><br>
+            <input id="allchack_button" type="button" value="全選択" class="square_btnB" onclick="onclickAllcheckButton(true);"><br>
             <div id="Category_div"></div>
             <div id="Question_div"></div>
             <form id="Answer_div"></form>
@@ -103,7 +104,7 @@
                         if (datatmp.Items[count].ParentId != null) {
 
                             //alert("parent check");
-                            checkParent();
+                            //checkParent();
 
                         }
 
@@ -391,9 +392,9 @@
 
             while (p_id[i] != null) {
 
-                if (submitItems[221].itemValue == null) {
+                if (submitItems[count].itemValue == null) {
                     alert("check");
-                    count += 11;
+                    count += 1;
                     onclickNextButton();
                 }
 
@@ -491,6 +492,13 @@
             else {
                 alert("データの登録を行います");
                 sendLambda();
+            }
+        }
+
+        function onclickAllcheckButton( tf ) {
+            var ElementsCount = answer_target.elements.length; // チェックボックスの数
+            for (i = 0; i < ElementsCount; i++) {
+                answer_target.elements[i].checked = tf; // ON・OFFを切り替え
             }
         }
 

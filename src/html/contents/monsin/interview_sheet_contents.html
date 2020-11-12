@@ -52,8 +52,8 @@
             answer_target = document.getElementById("Answer_div");
             empty_flag = false;
             disabled_char_flag = false;
-            admin_url = "https:/y4dda4qzjg.execute-api.ap-northeast-1.amazonaws.com/stage/resource"; //Interview-items(五十嵐さんが登録した方の問診票)
-            //admin_url = "https:/9igrdhfqfb.execute-api.ap-northeast-1.amazonaws.com/stage/resource";   //interview-items-2017
+            //admin_url = "https:/y4dda4qzjg.execute-api.ap-northeast-1.amazonaws.com/stage/resource"; //Interview-items(五十嵐さんが登録した方の問診票)
+            admin_url = "https:/9igrdhfqfb.execute-api.ap-northeast-1.amazonaws.com/stage/resource";   //interview-items-2017
             getItems();
             window.onerror = function (msg, url, linenumber) {
                 alert('Error message: ' + msg + '\nURL: ' + url + '\nLine Number: ' + linenumber);
@@ -190,7 +190,7 @@
                 }
 
                 q_num++;
-                answer_target.innerHTML += "count  ：" + count + "<br>question：" + q_num;
+                //answer_target.innerHTML += "count  ：" + count + "<br>question：" + q_num;
 
             }
 
