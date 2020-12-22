@@ -73,22 +73,17 @@
                 for (var j = 0; j < symptom.length; j++) {
 
                     if (symptom[j].includes("*")) {
-
                         var num_s = symptom[j].split("*");
                         alert(num_s);
                         num = Number(num_s[0]);
-
                     }
 
                     else if (symptom[j].includes("/")) {
-
                         var num_s = symptom[j].split("/");
                         num = Number(num_s[0]);
-
                     }
 
                     else {
-
                         var num_s = symptom[j].split(" ");
                         num = Number(num_s[0]);
                     }
@@ -96,19 +91,15 @@
                     if (num != 0) {
 
                         while (Number(datatmp2.Item.Item[search].itemId) != num) {
-
                             search++;
-
                         }
 
-                        alert("itemId: " + datatmp2.Item.Item[search].itemId + "\nnum: " + num + "\nsearch: " + search);
-
+                        //alert("itemId: " + datatmp2.Item.Item[search].itemId + "\nnum: " + num + "\nsearch: " + search);
                         //alert(datatmp2.Item.Item[num].itemValue);
 
                         if (datatmp2.Item.Item[search].itemValue != null) {
                             //alert("hit");
                             t_count++;
-
                         }
 
                         symptom_num++;
@@ -116,7 +107,6 @@
                     }
 
                     search = 0;
-
                     //}
 
                 }
@@ -131,6 +121,15 @@
         }
 
         function getItems() {
+
+            var vars = [], hash = "", array = "";
+            var url = window.location.search;
+            //alert(url);
+            //?を取り除くため、1から始める。複数のクエリ文字列に対応するため、&で区切る
+            hash = url.slice(1).split('\=');
+            var patientId = hash[1];
+		    //alert(patientId);
+
             var jsonData = {
                 q: "reqQ"
             };
@@ -162,7 +161,7 @@
             });
 
             var jsonData2 = {
-                patientId: "943454bacd3f42a5818f6b096b3b7a13"
+                patientId: patientId
             };
 
             $.ajax({
@@ -184,6 +183,7 @@
                     //answer_target.innerHTML += JSON.stringify(data);
                     //max = data.Items.length;
                     //alert(max);
+                    answer_target.innerHTML += "患者名：" + datatmp2.Item.Item[0].itemValue + " " + datatmp2.Item.Item[1].itemValue + "<br><br>";
                     compareData();
                 },
                 error: function (data) {
