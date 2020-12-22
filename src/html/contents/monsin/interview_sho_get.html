@@ -9,19 +9,19 @@
     <meta name="keywords" content="" />
     <link rel="stylesheet" href="../../../css/common.css" type="text/css" />
 
-    <title>証候補抽出</title>
+    <title>中国伝統医学　問診票</title>
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 </head>
 <body>
     <div id="wrap">
         <div id="header">
-            <h2>証候補抽出</h2><br />
+            <h2>問診票</h2><br />
         </div><!-- /header -->
         <div id="inner">
             <div id="Category_div"></div>
             <div id="Question_div"></div>
-            <form id="Answer_div"></form>            
+            <form id="Answer_div"></form>
         </div><!-- /inner -->
     </div><!-- /wrap -->
 
@@ -59,6 +59,8 @@
         function compareData() {
 
             var t_count = 0;
+            var symptom_num = 0;
+            var search = 0;
 
             for (var i = 0; i < max; i++) {
                 //alert(datatmp.Items[i].interview);
@@ -69,29 +71,66 @@
                 answer_target.innerHTML += datatmp.Items[i].name + "：";
 
                 for (var j = 0; j < symptom.length; j++) {
-                    var num_s = symptom[j].split(" ");
-                    num = Number(num_s[0]);
-                    if (num < 1200) {
+
+                    if (symptom[j].includes("*")) {
+
+                        var num_s = symptom[j].split("*");
+                        alert(num_s);
+                        num = Number(num_s[0]);
+
+                    }
+
+                    else if (symptom[j].includes("/")) {
+
+                        var num_s = symptom[j].split("/");
+                        num = Number(num_s[0]);
+
+                    }
+
+                    else {
+
+                        var num_s = symptom[j].split(" ");
+                        num = Number(num_s[0]);
+                    }
+
+                    if (num != 0) {
+
+                        while (Number(datatmp2.Item.Item[search].itemId) != num) {
+
+                            search++;
+
+                        }
+
+                        alert("itemId: " + datatmp2.Item.Item[search].itemId + "\nnum: " + num + "\nsearch: " + search);
+
                         //alert(datatmp2.Item.Item[num].itemValue);
 
-                        if (datatmp2.Item.Item[num].itemValue != null) {
+                        if (datatmp2.Item.Item[search].itemValue != null) {
                             //alert("hit");
                             t_count++;
 
                         }
+
+                        symptom_num++;
+
                     }
 
+                    search = 0;
+
+                    //}
+
                 }
-                                
+
                 var trueper = (t_count / symptom.length * 100).toFixed(2);
-                answer_target.innerHTML += trueper + "%<br>";
+                answer_target.innerHTML += trueper + "%<br>(" + t_count + " / " + symptom.length + ")<br>";
                 t_count = 0;
+                symptom_num = 0;
 
             }
 
         }
 
-       function getItems() {
+        function getItems() {
             var jsonData = {
                 q: "reqQ"
             };
@@ -123,7 +162,7 @@
             });
 
             var jsonData2 = {
-                patientId: "b558458d65754af8af8f41081a5beea5"
+                patientId: "943454bacd3f42a5818f6b096b3b7a13"
             };
 
             $.ajax({
@@ -137,8 +176,8 @@
                     //確認用
                     var str = JSON.stringify(data);
                     jsonParsed = JSON.parse(str);
-                    //alert(JSON.stringify(data));
-                    
+                    alert(JSON.stringify(data));
+
 
                     //alert(JSON.stringify(data));
                     datatmp2 = data;
